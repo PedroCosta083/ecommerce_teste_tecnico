@@ -17,12 +17,15 @@ class ProductFactory extends Factory
     public function definition(): array
     {
         $name = fake()->unique()->words(3, true);
+        $price = fake()->randomFloat(2, 10, 2000);
+        $costPrice = $price * fake()->randomFloat(2, 0.4, 0.8); // Cost price 40-80% of selling price
+        
         return [
             'name' => $name,
             'slug' => \Illuminate\Support\Str::slug($name) . '-' . fake()->unique()->numberBetween(1, 9999),
             'description' => fake()->paragraph(),
-            'price' => fake()->randomFloat(2, 10, 2000),
-            'cost_price' => fake()->randomFloat(2, 5, 1500),
+            'price' => $price,
+            'cost_price' => $costPrice,
             'quantity' => fake()->numberBetween(0, 100),
             'min_quantity' => fake()->numberBetween(1, 10),
             'active' => fake()->boolean(85),
