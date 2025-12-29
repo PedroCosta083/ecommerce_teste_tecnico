@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
 
         // Executar seeders específicos
         $this->call([
+            CategorySeeder::class,
             ProductSeeder::class,
             OrderSeeder::class,
         ]);
