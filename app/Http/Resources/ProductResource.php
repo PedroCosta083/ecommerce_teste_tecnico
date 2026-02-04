@@ -14,13 +14,27 @@ class ProductResource extends JsonResource
             'name'        => $this->name,
             'slug'        => $this->slug,
             'description' => $this->description,
-            'price'       => $this->price,
-            'cost_price'  => $this->cost_price,
-            'quantity'    => $this->quantity,
-            'min_quantity'=> $this->min_quantity,
-            'active'      => $this->active,
-            'category'    => new CategoryResource($this->whenLoaded('category')),
-            'tags'        => TagResource::collection($this->whenLoaded('tags')),
+            'price'       => (float) $this->price,
+            'cost_price'  => (float) $this->cost_price,
+            'quantity'    => (int) $this->quantity,
+            'min_quantity'=> (int) $this->min_quantity,
+            'active'      => (bool) $this->active,
+            'category'    => $this->whenLoaded('category', function () {
+                return [
+                    'id' => $this->category->id,
+                    'name' => $this->category->name,
+                    'slug' => $this->category->slug,
+                ];
+            }),
+            'tags'        => $this->whenLoaded('tags', function () {
+                return $this->tags->map(function ($tag) {
+                    return [
+                        'id' => $tag->id,
+                        'name' => $tag->name,
+                        'slug' => $tag->slug,
+                    ];
+                });
+            }),
             'created_at'  => $this->created_at,
             'updated_at'  => $this->updated_at,
         ];
