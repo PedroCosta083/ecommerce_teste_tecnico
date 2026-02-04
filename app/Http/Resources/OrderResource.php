@@ -12,15 +12,37 @@ class OrderResource extends JsonResource
         return [
             'id' => $this->id,
             'status' => $this->status,
-            'subtotal' => $this->subtotal,
-            'tax' => $this->tax,
-            'shipping_cost' => $this->shipping_cost,
-            'total' => $this->total,
+            'subtotal' => (float) $this->subtotal,
+            'tax' => (float) $this->tax,
+            'shipping_cost' => (float) $this->shipping_cost,
+            'total' => (float) $this->total,
             'shipping_address' => $this->shipping_address,
             'billing_address' => $this->billing_address,
             'notes' => $this->notes,
-            'user' => new UserResource($this->whenLoaded('user')),
-            'items' => OrderItemResource::collection($this->whenLoaded('orderItems')),
+            'user' => $this->whenLoaded('user', function () {
+                return [
+                    'id' => $this->user->id,
+                    'name' => $this->user->name,
+                    'email' => $this->user->email,
+                ];
+            }),
+            'items' => $this->whenLoaded('orderItems', function () {
+                return $this->orderItems->map(function ($item) {
+                    return [
+                        'id' => $item->id,
+                        'quantity' => (int) $item->quantity,
+                        'unit_price' => (float) $item->unit_price,
+                        'total_price' => (float) $item->total_price,
+                        'product' => $item->product ? [
+                            'id' => $item->product->id,
+                            'name' => $item->product->name,
+                        ] : [
+                            'id' => null,
+                            'name' => 'Produto removido',
+                        ],
+                    ];
+                })->toArray();
+            }, []),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

@@ -17,7 +17,6 @@ export default function Toast() {
   const [type, setType] = useState<'success' | 'error' | 'warning' | 'info'>('success');
 
   useEffect(() => {
-    console.log('Flash messages:', flash); // Debug
     if (flash?.success) {
       setMessage(flash.success);
       setType('success');

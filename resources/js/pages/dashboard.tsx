@@ -33,9 +33,19 @@ export default function Dashboard() {
                         </CardContent>
                     </Card>
                     
-                    <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                    </div>
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Pedidos</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <p className="text-sm text-gray-600 mb-4">
+                                Visualize e gerencie os pedidos dos clientes
+                            </p>
+                            <Link href="/orders">
+                                <Button className="w-full">Gerenciar Pedidos</Button>
+                            </Link>
+                        </CardContent>
+                    </Card>
                     <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
                         <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
                     </div>

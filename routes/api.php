@@ -12,7 +12,6 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-Route::apiResource('orders', OrderController::class);
 Route::apiResource('categories', CategoryController::class);
 Route::apiResource('tags', TagController::class);
 
