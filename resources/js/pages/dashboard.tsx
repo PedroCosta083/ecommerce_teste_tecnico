@@ -75,12 +75,34 @@ export default function Dashboard() {
                             </Link>
                         </CardContent>
                     </Card>
-                    <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                    </div>
-                    <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                    </div>
+                    
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Roles & Permissions</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <p className="text-sm text-gray-600 mb-4">
+                                Gerencie roles e permissions do sistema
+                            </p>
+                            <Link href="/roles">
+                                <Button className="w-full">Gerenciar Roles</Button>
+                            </Link>
+                        </CardContent>
+                    </Card>
+                    
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Usuários</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <p className="text-sm text-gray-600 mb-4">
+                                Gerencie usuários e suas permissões
+                            </p>
+                            <Link href="/users">
+                                <Button className="w-full">Gerenciar Usuários</Button>
+                            </Link>
+                        </CardContent>
+                    </Card>
                 </div>
                 <div className="relative min-h-[100vh] flex-1 overflow-hidden rounded-xl border border-sidebar-border/70 md:min-h-min dark:border-sidebar-border">
                     <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
