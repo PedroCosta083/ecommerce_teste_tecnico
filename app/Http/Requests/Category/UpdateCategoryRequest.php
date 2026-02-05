@@ -12,10 +12,19 @@ class UpdateCategoryRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        if ($this->parent_id === 'none') {
+            $this->merge([
+                'parent_id' => null,
+            ]);
+        }
+    }
+
     public function rules(): array
     {
         $categoryId = $this->route('category');
-        
+
         return [
             'name' => 'sometimes|string|max:255',
             'slug' => [
@@ -25,7 +34,7 @@ class UpdateCategoryRequest extends FormRequest
                 Rule::unique('categories', 'slug')->ignore($categoryId)
             ],
             'description' => 'nullable|string',
-            'parent_id' => 'nullable|exists:categories,id',
+            'parent_id' => 'sometimes|nullable|exists:categories,id',
             'active' => 'boolean',
         ];
     }

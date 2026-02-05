@@ -11,6 +11,15 @@ class CreateCategoryRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        if ($this->parent_id === 'none') {
+            $this->merge([
+                'parent_id' => null,
+            ]);
+        }
+    }
+
     public function rules(): array
     {
         return [

@@ -55,16 +55,17 @@ class CategoryService
     public function updateCategory(int $id, UpdateCategoryDTO $dto): ?Category
     {
         $category = $this->categoryRepository->findById($id);
-        
+
         if (!$category) {
             return null;
         }
+
 
         $data = array_filter([
             'name' => $dto->name,
             'slug' => $dto->slug,
             'description' => $dto->description,
-            'parent_id' => $dto->parentId,
+            'parent_id' => $dto->parentId != 'none' ? $dto->parentId : null,
             'active' => $dto->active,
         ], fn($value) => $value !== null);
 
@@ -76,7 +77,7 @@ class CategoryService
     public function deleteCategory(int $id): bool
     {
         $category = $this->categoryRepository->findById($id);
-        
+
         if (!$category) {
             return false;
         }

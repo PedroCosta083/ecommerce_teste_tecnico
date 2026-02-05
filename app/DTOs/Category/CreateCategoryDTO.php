@@ -18,7 +18,7 @@ class CreateCategoryDTO
             $data['name'],
             $data['slug'],
             $data['description'] ?? null,
-            $data['parent_id'] ?? null,
+            isset($data['parent_id']) && $data['parent_id'] !== 'none' ? (int)$data['parent_id'] : null,
             $data['active'] ?? true
         );
     }

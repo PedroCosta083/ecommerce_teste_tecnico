@@ -43,6 +43,11 @@ class CategoryController extends Controller
 
     public function update(UpdateCategoryRequest $request, int $id): JsonResponse
     {
+
+        if ($request->parent_id === 'none') {
+            $request->merge(['parent_id' => null]);
+        }
+
         $dto = UpdateCategoryDTO::fromRequest($request->validated());
         $category = $this->categoryService->updateCategory($id, $dto);
 
