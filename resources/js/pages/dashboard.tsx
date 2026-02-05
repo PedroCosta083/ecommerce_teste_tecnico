@@ -35,6 +35,35 @@ export default function Dashboard() {
                     
                     <Card>
                         <CardHeader>
+                            <CardTitle>Categorias</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <p className="text-sm text-gray-600 mb-4">
+                                Organize produtos em categorias
+                            </p>
+                            <Link href="/categories">
+                                <Button className="w-full">Gerenciar Categorias</Button>
+                            </Link>
+                        </CardContent>
+                    </Card>
+                    
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Tags</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <p className="text-sm text-gray-600 mb-4">
+                                Gerencie tags para classificar produtos
+                            </p>
+                            <Link href="/tags">
+                                <Button className="w-full">Gerenciar Tags</Button>
+                            </Link>
+                        </CardContent>
+                    </Card>
+                </div>
+                <div className="grid auto-rows-min gap-4 md:grid-cols-3">
+                    <Card>
+                        <CardHeader>
                             <CardTitle>Pedidos</CardTitle>
                         </CardHeader>
                         <CardContent>
@@ -46,6 +75,9 @@ export default function Dashboard() {
                             </Link>
                         </CardContent>
                     </Card>
+                    <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
+                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
+                    </div>
                     <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
                         <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
                     </div>

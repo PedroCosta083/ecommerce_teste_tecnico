@@ -24,6 +24,8 @@ class UpdateTagRequest extends FormRequest
                 'max:255',
                 Rule::unique('tags', 'slug')->ignore($tagId)
             ],
+            'color' => 'sometimes|string|regex:/^#[0-9A-Fa-f]{6}$/',
+            'active' => 'boolean',
         ];
     }
 }

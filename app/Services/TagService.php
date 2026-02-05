@@ -2,74 +2,60 @@
 
 namespace App\Services;
 
-use App\DTOs\Tag\CreateTagDTO;
-use App\DTOs\Tag\UpdateTagDTO;
 use App\Models\Tag;
-use App\Repositories\Contracts\TagRepositoryInterface;
+use App\DTOs\Tag\{CreateTagDTO, UpdateTagDTO};
 use Illuminate\Database\Eloquent\Collection;
 
 class TagService
 {
-    public function __construct(
-        private TagRepositoryInterface $tagRepository
-    ) {}
-
     public function getAllTags(): Collection
     {
-        return $this->tagRepository->findAll();
+        return Tag::orderBy('name')->get();
     }
 
     public function getTagById(int $id): ?Tag
     {
-        return $this->tagRepository->findById($id);
-    }
-
-    public function getTagBySlug(string $slug): ?Tag
-    {
-        return $this->tagRepository->findBySlug($slug);
-    }
-
-    public function getTagsByIds(array $ids): Collection
-    {
-        return $this->tagRepository->findByIds($ids);
+        return Tag::find($id);
     }
 
     public function createTag(CreateTagDTO $dto): Tag
     {
-        $data = [
+        return Tag::create([
             'name' => $dto->name,
             'slug' => $dto->slug,
-        ];
-
-        return $this->tagRepository->create($data);
+            'color' => $dto->color,
+            'active' => $dto->active,
+        ]);
     }
 
     public function updateTag(int $id, UpdateTagDTO $dto): ?Tag
     {
-        $tag = $this->tagRepository->findById($id);
+        $tag = $this->getTagById($id);
         
         if (!$tag) {
             return null;
         }
 
-        $data = array_filter([
+        $updateData = array_filter([
             'name' => $dto->name,
             'slug' => $dto->slug,
+            'color' => $dto->color,
+            'active' => $dto->active,
         ], fn($value) => $value !== null);
 
-        $this->tagRepository->update($tag, $data);
-
+        $tag->update($updateData);
+        
         return $tag->fresh();
     }
 
     public function deleteTag(int $id): bool
     {
-        $tag = $this->tagRepository->findById($id);
+        $tag = $this->getTagById($id);
         
         if (!$tag) {
             return false;
         }
 
-        return $this->tagRepository->delete($tag);
+        return $tag->delete();
     }
 }

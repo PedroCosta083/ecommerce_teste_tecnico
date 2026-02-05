@@ -16,6 +16,8 @@ class CreateTagRequest extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'slug' => 'required|string|max:255|unique:tags,slug',
+            'color' => 'required|string|regex:/^#[0-9A-Fa-f]{6}$/',
+            'active' => 'boolean',
         ];
     }
 }

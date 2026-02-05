@@ -3,8 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
-use App\Http\Controllers\Web\ProductController;
-use App\Http\Controllers\Web\OrderController;
+use App\Http\Controllers\Web\{ProductController, OrderController, CategoryController, TagController};
 
 Route::get('/', function () {
     return Inertia::render('welcome', [
@@ -20,6 +19,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('products', ProductController::class);
     Route::resource('orders', OrderController::class)->except(['create', 'store', 'destroy']);
     Route::put('orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
+    Route::resource('categories', CategoryController::class);
+    Route::resource('tags', TagController::class);
 });
 
 require __DIR__.'/settings.php';
