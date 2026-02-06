@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
+use App\Models\Order;
 use App\Services\OrderService;
 use App\DTOs\Order\{CreateOrderDTO, UpdateOrderDTO, OrderFilterDTO};
 use App\Http\Requests\Order\{CreateOrderRequest, UpdateOrderRequest};
@@ -15,7 +16,9 @@ class OrderController extends Controller
 {
     public function __construct(
         private OrderService $orderService
-    ) {}
+    ) {
+        $this->authorizeResource(Order::class, 'order');
+    }
 
     public function index(Request $request): Response
     {
@@ -38,43 +41,27 @@ class OrderController extends Controller
         ]);
     }
 
-    public function show(int $id): Response
+    public function show(Order $order): Response
     {
-        $order = $this->orderService->getOrderById($id);
-        
-        if (!$order) {
-            abort(404);
-        }
-
         return Inertia::render('orders/show', [
             'order' => (new OrderResource($order->load(['user', 'orderItems.product'])))->resolve(),
         ]);
     }
 
-    public function update(UpdateOrderRequest $request, int $id)
+    public function update(UpdateOrderRequest $request, Order $order)
     {
         $dto = UpdateOrderDTO::fromRequest($request->validated());
-        $order = $this->orderService->updateOrder($id, $dto);
-
-        if (!$order) {
-            abort(404);
-        }
+        $this->orderService->updateOrder($order->id, $dto);
 
         return redirect()->route('orders.index')
             ->with('success', 'Pedido atualizado com sucesso!');
     }
 
-    public function updateStatus(Request $request, int $id)
+    public function updateStatus(Request $request, Order $order)
     {
         $request->validate([
             'status' => 'required|in:pending,processing,shipped,delivered'
         ]);
-
-        $order = $this->orderService->getOrderById($id);
-        
-        if (!$order) {
-            abort(404);
-        }
 
         $order->update(['status' => $request->status]);
         
@@ -82,13 +69,9 @@ class OrderController extends Controller
             ->with('success', 'Status do pedido atualizado com sucesso!');
     }
 
-    public function destroy(int $id)
+    public function destroy(Order $order)
     {
-        $deleted = $this->orderService->deleteOrder($id);
-
-        if (!$deleted) {
-            abort(404);
-        }
+        $this->orderService->deleteOrder($order->id);
 
         return redirect()->route('orders.index')
             ->with('success', 'Pedido excluído com sucesso!');

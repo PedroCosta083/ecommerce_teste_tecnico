@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
+use App\Models\Tag;
 use App\Services\TagService;
 use App\DTOs\Tag\{CreateTagDTO, UpdateTagDTO};
 use App\Http\Requests\Tag\{CreateTagRequest, UpdateTagRequest};
@@ -13,7 +14,9 @@ class TagController extends Controller
 {
     public function __construct(
         private TagService $tagService
-    ) {}
+    ) {
+        $this->authorizeResource(Tag::class, 'tag');
+    }
 
     public function index(): Response
     {
@@ -38,52 +41,32 @@ class TagController extends Controller
             ->with('success', 'Tag criada com sucesso!');
     }
 
-    public function show(int $id): Response
+    public function show(Tag $tag): Response
     {
-        $tag = $this->tagService->getTagById($id);
-        
-        if (!$tag) {
-            abort(404);
-        }
-
         return Inertia::render('tags/show', [
             'tag' => $tag->load('products'),
         ]);
     }
 
-    public function edit(int $id): Response
+    public function edit(Tag $tag): Response
     {
-        $tag = $this->tagService->getTagById($id);
-        
-        if (!$tag) {
-            abort(404);
-        }
-
         return Inertia::render('tags/edit', [
             'tag' => $tag,
         ]);
     }
 
-    public function update(UpdateTagRequest $request, int $id)
+    public function update(UpdateTagRequest $request, Tag $tag)
     {
         $dto = UpdateTagDTO::fromRequest($request->validated());
-        $tag = $this->tagService->updateTag($id, $dto);
-
-        if (!$tag) {
-            abort(404);
-        }
+        $this->tagService->updateTag($tag->id, $dto);
 
         return redirect()->route('tags.index')
             ->with('success', 'Tag atualizada com sucesso!');
     }
 
-    public function destroy(int $id)
+    public function destroy(Tag $tag)
     {
-        $deleted = $this->tagService->deleteTag($id);
-
-        if (!$deleted) {
-            abort(404);
-        }
+        $this->tagService->deleteTag($tag->id);
 
         return redirect()->route('tags.index')
             ->with('success', 'Tag excluída com sucesso!');

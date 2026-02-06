@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
 use App\DTOs\Cart\AddToCartDTO;
 use App\DTOs\Cart\UpdateCartItemDTO;
@@ -11,7 +11,7 @@ use App\Services\CartService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-class CartController extends Controller
+class CartController extends ApiController
 {
     public function __construct(
         private CartService $cartService
@@ -19,21 +19,18 @@ class CartController extends Controller
 
     public function show(Request $request): JsonResponse
     {
-        // dd('chegou aqui');
-        // dd( $request->all());
-        $userId = $request->query('user_id') == null ? (int) $request->user_id : null;
-        $sessionId = $request->query('session_id') == null ? $request->session_id : null;
+        $userId = $request->query('user_id') ?? (int) $request->user_id ?? null;
+        $sessionId = $request->query('session_id') ?? $request->session_id ?? null;
 
-        // dd($userId, $sessionId);
         $cart = $userId 
             ? $this->cartService->getCartByUser($userId)
             : $this->cartService->getCartBySession($sessionId);
 
         if (!$cart) {
-            return response()->json(['message' => 'Cart not found'], 404);
+            return $this->error('Cart not found', 404);
         }
 
-        return response()->json(new CartResource($cart));
+        return $this->success(new CartResource($cart));
     }
 
     public function addItem(AddToCartRequest $request): JsonResponse
@@ -42,9 +39,9 @@ class CartController extends Controller
             $dto = AddToCartDTO::fromRequest($request->validated());
             $cartItem = $this->cartService->addToCart($dto);
 
-            return response()->json(['message' => 'Item added to cart', 'item_id' => $cartItem->id], 201);
+            return $this->success(['item_id' => $cartItem->id], 'Item added to cart', 201);
         } catch (\Exception $e) {
-            return response()->json(['message' => $e->getMessage()], 400);
+            return $this->error($e->getMessage(), 400);
         }
     }
 
@@ -55,12 +52,12 @@ class CartController extends Controller
             $updated = $this->cartService->updateCartItem($cartItemId, $dto);
 
             if (!$updated) {
-                return response()->json(['message' => 'Cart item not found'], 404);
+                return $this->error('Cart item not found', 404);
             }
 
-            return response()->json(['message' => 'Cart item updated']);
+            return $this->success(null, 'Cart item updated');
         } catch (\Exception $e) {
-            return response()->json(['message' => $e->getMessage()], 400);
+            return $this->error($e->getMessage(), 400);
         }
     }
 
@@ -69,10 +66,10 @@ class CartController extends Controller
         $removed = $this->cartService->removeCartItem($cartItemId);
 
         if (!$removed) {
-            return response()->json(['message' => 'Cart item not found'], 404);
+            return $this->error('Cart item not found', 404);
         }
 
-        return response()->json(['message' => 'Item removed from cart']);
+        return $this->success(null, 'Item removed from cart');
     }
 
     public function clear(int $cartId): JsonResponse
@@ -80,9 +77,9 @@ class CartController extends Controller
         $cleared = $this->cartService->clearCart($cartId);
 
         if (!$cleared) {
-            return response()->json(['message' => 'Cart not found'], 404);
+            return $this->error('Cart not found', 404);
         }
 
-        return response()->json(['message' => 'Cart cleared']);
+        return $this->success(null, 'Cart cleared');
     }
 }

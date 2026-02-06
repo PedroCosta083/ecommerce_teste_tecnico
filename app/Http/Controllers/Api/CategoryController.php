@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
 use App\DTOs\Category\CreateCategoryDTO;
 use App\DTOs\Category\UpdateCategoryDTO;
@@ -10,7 +10,7 @@ use App\Http\Resources\CategoryResource;
 use App\Services\CategoryService;
 use Illuminate\Http\JsonResponse;
 
-class CategoryController extends Controller
+class CategoryController extends ApiController
 {
     public function __construct(
         private CategoryService $categoryService
@@ -19,7 +19,7 @@ class CategoryController extends Controller
     public function index(): JsonResponse
     {
         $categories = $this->categoryService->getAllCategories();
-        return response()->json(CategoryResource::collection($categories));
+        return $this->success(CategoryResource::collection($categories));
     }
 
     public function show(int $id): JsonResponse
@@ -27,10 +27,10 @@ class CategoryController extends Controller
         $category = $this->categoryService->getCategoryById($id);
 
         if (!$category) {
-            return response()->json(['message' => 'Category not found'], 404);
+            return $this->error('Category not found', 404);
         }
 
-        return response()->json(new CategoryResource($category));
+        return $this->success(new CategoryResource($category));
     }
 
     public function store(CreateCategoryRequest $request): JsonResponse
@@ -38,12 +38,11 @@ class CategoryController extends Controller
         $dto = CreateCategoryDTO::fromRequest($request->validated());
         $category = $this->categoryService->createCategory($dto);
 
-        return response()->json(new CategoryResource($category), 201);
+        return $this->success(new CategoryResource($category), 'Category created successfully', 201);
     }
 
     public function update(UpdateCategoryRequest $request, int $id): JsonResponse
     {
-
         if ($request->parent_id === 'none') {
             $request->merge(['parent_id' => null]);
         }
@@ -52,10 +51,10 @@ class CategoryController extends Controller
         $category = $this->categoryService->updateCategory($id, $dto);
 
         if (!$category) {
-            return response()->json(['message' => 'Category not found'], 404);
+            return $this->error('Category not found', 404);
         }
 
-        return response()->json(new CategoryResource($category));
+        return $this->success(new CategoryResource($category), 'Category updated successfully');
     }
 
     public function destroy(int $id): JsonResponse
@@ -63,9 +62,9 @@ class CategoryController extends Controller
         $deleted = $this->categoryService->deleteCategory($id);
 
         if (!$deleted) {
-            return response()->json(['message' => 'Category not found'], 404);
+            return $this->error('Category not found', 404);
         }
 
-        return response()->json(['message' => 'Category deleted successfully']);
+        return $this->success(null, 'Category deleted successfully');
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
+use App\Models\Product;
 use App\Services\ProductService;
 use App\Services\CategoryService;
 use App\Services\TagService;
@@ -19,7 +20,9 @@ class ProductController extends Controller
         private ProductService $productService,
         private CategoryService $categoryService,
         private TagService $tagService
-    ) {}
+    ) {
+        $this->authorizeResource(Product::class, 'product');
+    }
 
     public function index(Request $request): Response
     {
@@ -62,27 +65,15 @@ class ProductController extends Controller
             ->with('success', 'Produto criado com sucesso!');
     }
 
-    public function show(int $id): Response
+    public function show(Product $product): Response
     {
-        $product = $this->productService->getProductById($id);
-        
-        if (!$product) {
-            abort(404);
-        }
-
         return Inertia::render('products/show', [
             'product' => (new ProductResource($product->load(['category', 'tags'])))->resolve(),
         ]);
     }
 
-    public function edit(int $id): Response
+    public function edit(Product $product): Response
     {
-        $product = $this->productService->getProductById($id);
-        
-        if (!$product) {
-            abort(404);
-        }
-
         return Inertia::render('products/edit', [
             'product' => (new ProductResource($product->load(['category', 'tags'])))->resolve(),
             'categories' => $this->categoryService->getAllCategories(),
@@ -90,26 +81,18 @@ class ProductController extends Controller
         ]);
     }
 
-    public function update(UpdateProductRequest $request, int $id)
+    public function update(UpdateProductRequest $request, Product $product)
     {
         $dto = UpdateProductDTO::fromRequest($request->validated());
-        $product = $this->productService->updateProduct($id, $dto);
-
-        if (!$product) {
-            abort(404);
-        }
+        $this->productService->updateProduct($product->id, $dto);
 
         return redirect()->route('products.index')
             ->with('success', 'Produto atualizado com sucesso!');
     }
 
-    public function destroy(int $id)
+    public function destroy(Product $product)
     {
-        $deleted = $this->productService->deleteProduct($id);
-
-        if (!$deleted) {
-            abort(404);
-        }
+        $this->productService->deleteProduct($product->id);
 
         return redirect()->route('products.index')
             ->with('success', 'Produto excluído com sucesso!');

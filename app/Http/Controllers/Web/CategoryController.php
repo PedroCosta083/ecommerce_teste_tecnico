@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
+use App\Models\Category;
 use App\Services\CategoryService;
 use App\DTOs\Category\{CreateCategoryDTO, UpdateCategoryDTO};
 use App\Http\Requests\Category\{CreateCategoryRequest, UpdateCategoryRequest};
@@ -14,7 +15,9 @@ class CategoryController extends Controller
 {
     public function __construct(
         private CategoryService $categoryService
-    ) {}
+    ) {
+        $this->authorizeResource(Category::class, 'category');
+    }
 
     public function index(): Response
     {
@@ -41,53 +44,33 @@ class CategoryController extends Controller
             ->with('success', 'Categoria criada com sucesso!');
     }
 
-    public function show(int $id): Response
+    public function show(Category $category): Response
     {
-        $category = $this->categoryService->getCategoryById($id);
-        
-        if (!$category) {
-            abort(404);
-        }
-
         return Inertia::render('categories/show', [
             'category' => $category->load(['parent', 'children', 'products']),
         ]);
     }
 
-    public function edit(int $id): Response
+    public function edit(Category $category): Response
     {
-        $category = $this->categoryService->getCategoryById($id);
-        
-        if (!$category) {
-            abort(404);
-        }
-
         return Inertia::render('categories/edit', [
             'category' => $category->load(['parent']),
-            'categories' => $this->categoryService->getAllCategories()->where('id', '!=', $id)->values(),
+            'categories' => $this->categoryService->getAllCategories()->where('id', '!=', $category->id)->values(),
         ]);
     }
 
-    public function update(UpdateCategoryRequest $request, int $id)
+    public function update(UpdateCategoryRequest $request, Category $category)
     {
         $dto = UpdateCategoryDTO::fromRequest($request->validated());
-        $category = $this->categoryService->updateCategory($id, $dto);
-
-        if (!$category) {
-            abort(404);
-        }
+        $this->categoryService->updateCategory($category->id, $dto);
 
         return redirect()->route('categories.index')
             ->with('success', 'Categoria atualizada com sucesso!');
     }
 
-    public function destroy(int $id)
+    public function destroy(Category $category)
     {
-        $deleted = $this->categoryService->deleteCategory($id);
-
-        if (!$deleted) {
-            abort(404);
-        }
+        $this->categoryService->deleteCategory($category->id);
 
         return redirect()->route('categories.index')
             ->with('success', 'Categoria excluída com sucesso!');
