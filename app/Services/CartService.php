@@ -83,4 +83,28 @@ class CartService
 
         return $this->cartRepository->clearCart($cart);
     }
+
+    public function mergeGuestCart(int $userId, string $sessionId): void
+    {
+        $guestCart = $this->cartRepository->findBySession($sessionId);
+        
+        if (!$guestCart) {
+            return;
+        }
+
+        $userCart = $this->cartRepository->findOrCreateByUser($userId);
+
+        foreach ($guestCart->items as $item) {
+            $existingItem = $userCart->items->firstWhere('product_id', $item->product_id);
+            
+            if ($existingItem) {
+                $this->cartRepository->updateItem($existingItem, $existingItem->quantity + $item->quantity);
+            } else {
+                $this->cartRepository->addItem($userCart, $item->product_id, $item->quantity);
+            }
+        }
+
+        $this->cartRepository->clearCart($guestCart);
+        $guestCart->delete();
+    }
 }

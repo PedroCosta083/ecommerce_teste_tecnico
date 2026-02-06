@@ -3,15 +3,28 @@
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
+use App\Http\Controllers\StorefrontController;
+use App\Http\Controllers\PublicCartController;
 use App\Http\Controllers\Web\{ProductController, OrderController, CategoryController, TagController, RoleController, UserRoleController, PermissionController};
 
-Route::get('/', function () {
-    return Inertia::render('welcome', [
-        'canRegister' => Features::enabled(Features::registration()),
-    ]);
-})->name('home');
+Route::get('/', [StorefrontController::class, 'index'])->name('home');
+Route::get('/produto/{id}', [StorefrontController::class, 'show'])->name('storefront.product');
+
+Route::prefix('cart')->group(function () {
+    Route::get('/', [PublicCartController::class, 'show'])->name('cart.show');
+    Route::post('/items', [PublicCartController::class, 'addItem'])->name('cart.add');
+    Route::put('/items/{cartItem}', [PublicCartController::class, 'updateItem'])->name('cart.update');
+    Route::delete('/items/{cartItem}', [PublicCartController::class, 'removeItem'])->name('cart.remove');
+    Route::post('/merge', [PublicCartController::class, 'mergeOnLogin'])->name('cart.merge');
+});
 
 Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/checkout', [App\Http\Controllers\CheckoutController::class, 'index'])->name('checkout.index');
+    Route::post('/checkout', [App\Http\Controllers\CheckoutController::class, 'store'])->name('checkout.store');
+    
+    Route::get('/meus-pedidos', [App\Http\Controllers\MyOrdersController::class, 'index'])->name('my-orders.index');
+    Route::get('/meus-pedidos/{id}', [App\Http\Controllers\MyOrdersController::class, 'show'])->name('my-orders.show');
+    
     Route::get('dashboard', function () {
         return Inertia::render('dashboard');
     })->name('dashboard');

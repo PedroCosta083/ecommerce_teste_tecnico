@@ -26,7 +26,7 @@ class OrderResource extends JsonResource
                     'email' => $this->user->email,
                 ];
             }),
-            'items' => $this->whenLoaded('orderItems', function () {
+            'order_items' => $this->whenLoaded('orderItems', function () {
                 return $this->orderItems->map(function ($item) {
                     return [
                         'id' => $item->id,
