@@ -57,7 +57,7 @@ export default function StorefrontIndex({ products, categories, filters, auth }:
 
   const addToCart = async (productId: number) => {
     try {
-      await fetch('/cart/items', {
+      const response = await fetch('/cart/items', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -65,8 +65,11 @@ export default function StorefrontIndex({ products, categories, filters, auth }:
         },
         body: JSON.stringify({ product_id: productId, quantity: 1 }),
       });
-      loadCartCount();
-      alert('Produto adicionado ao carrinho!');
+      
+      if (response.ok) {
+        await loadCartCount();
+        setCartOpen(true);
+      }
     } catch (error) {
       console.error('Erro ao adicionar ao carrinho:', error);
     }

@@ -13,7 +13,7 @@ class CartResource extends JsonResource
             'id' => $this->id,
             'user' => new UserResource($this->whenLoaded('user')),
             'session_id' => $this->session_id,
-            'items' => CartItemResource::collection($this->whenLoaded('cartItems')),
+            'items' => CartItemResource::collection($this->cartItems),
             'total_items' => $this->cartItems->sum('quantity'),
             'total_price' => $this->cartItems->sum(fn($item) => $item->quantity * $item->product->price),
             'created_at' => $this->created_at,

@@ -1,9 +1,10 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { ShoppingCart, User, ArrowLeft, Plus, Minus, CreditCard } from 'lucide-react';
+import { ShoppingCart, User, ArrowLeft, Plus, Minus, CreditCard, Package } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import CartSheet from '@/components/cart-sheet';
 
 interface Product {
   id: number;
@@ -24,11 +25,29 @@ interface Props {
 export default function StorefrontProduct({ product, auth }: Props) {
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [cartOpen, setCartOpen] = useState(false);
+  const [cartCount, setCartCount] = useState(0);
+
+  useEffect(() => {
+    loadCartCount();
+  }, []);
+
+  const loadCartCount = async () => {
+    try {
+      const response = await fetch('/cart');
+      const data = await response.json();
+      if (data.data?.items) {
+        setCartCount(data.data.items.length);
+      }
+    } catch (error) {
+      console.error('Erro ao carregar carrinho:', error);
+    }
+  };
 
   const addToCart = async () => {
     setLoading(true);
     try {
-      await fetch('/cart/items', {
+      const response = await fetch('/cart/items', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -36,7 +55,11 @@ export default function StorefrontProduct({ product, auth }: Props) {
         },
         body: JSON.stringify({ product_id: product.id, quantity }),
       });
-      alert('Produto adicionado ao carrinho!');
+      
+      if (response.ok) {
+        await loadCartCount();
+        setCartOpen(true);
+      }
     } catch (error) {
       console.error('Erro ao adicionar ao carrinho:', error);
       alert('Erro ao adicionar ao carrinho');
@@ -67,6 +90,13 @@ export default function StorefrontProduct({ product, auth }: Props) {
               </Link>
 
               <div className="flex items-center gap-4">
+                <Link href="/meus-pedidos">
+                  <Button variant="ghost" size="sm" className="cursor-pointer">
+                    <Package className="h-5 w-5 mr-2" />
+                    Meus Pedidos
+                  </Button>
+                </Link>
+                
                 {auth?.user ? (
                   <Link href="/dashboard">
                     <Button variant="ghost" size="sm">
@@ -83,8 +113,13 @@ export default function StorefrontProduct({ product, auth }: Props) {
                   </Link>
                 )}
 
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" className="relative" onClick={() => setCartOpen(true)}>
                   <ShoppingCart className="h-5 w-5" />
+                  {cartCount > 0 && (
+                    <Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0">
+                      {cartCount}
+                    </Badge>
+                  )}
                 </Button>
               </div>
             </div>
@@ -191,6 +226,8 @@ export default function StorefrontProduct({ product, auth }: Props) {
             </div>
           </div>
         </main>
+
+        <CartSheet open={cartOpen} onClose={() => setCartOpen(false)} onUpdate={loadCartCount} />
       </div>
     </>
   );
