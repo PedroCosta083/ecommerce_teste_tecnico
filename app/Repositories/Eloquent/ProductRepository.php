@@ -7,32 +7,43 @@ use App\DTOs\Product\ProductFilterDTO;
 use App\Repositories\Contracts\ProductRepositoryInterface;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Cache;
 
 class ProductRepository implements ProductRepositoryInterface
 {
     public function findAll(): Collection
     {
-        return Product::with(['category', 'tags'])->get();
+        return Cache::tags(['products'])->remember('products.all', 3600, function () {
+            return Product::with(['category', 'tags'])->get();
+        });
     }
 
     public function findById(int $id): ?Product
     {
-        return Product::with(['category', 'tags', 'stockMovements'])->find($id);
+        return Cache::tags(['products'])->remember("products.{$id}", 3600, function () use ($id) {
+            return Product::with(['category', 'tags', 'stockMovements'])->find($id);
+        });
     }
 
     public function findBySlug(string $slug): ?Product
     {
-        return Product::with(['category', 'tags', 'stockMovements'])->where('slug', $slug)->first();
+        return Cache::tags(['products'])->remember("products.slug.{$slug}", 3600, function () use ($slug) {
+            return Product::with(['category', 'tags', 'stockMovements'])->where('slug', $slug)->first();
+        });
     }
 
     public function findActive(): Collection
     {
-        return Product::with(['category', 'tags'])->where('active', true)->get();
+        return Cache::tags(['products'])->remember('products.active', 3600, function () {
+            return Product::with(['category', 'tags'])->where('active', true)->get();
+        });
     }
 
     public function findByCategory(int $categoryId): Collection
     {
-        return Product::with(['category', 'tags'])->where('category_id', $categoryId)->where('active', true)->get();
+        return Cache::tags(['products', 'categories'])->remember("products.category.{$categoryId}", 3600, function () use ($categoryId) {
+            return Product::with(['category', 'tags'])->where('category_id', $categoryId)->where('active', true)->get();
+        });
     }
 
     public function findWithFilters(ProductFilterDTO $filters): LengthAwarePaginator
@@ -72,16 +83,27 @@ class ProductRepository implements ProductRepositoryInterface
 
     public function create(array $data): Product
     {
-        return Product::create($data);
+        $product = Product::create($data);
+        $this->clearCache();
+        return $product;
     }
 
     public function update(Product $product, array $data): bool
     {
-        return $product->update($data);
+        $result = $product->update($data);
+        $this->clearCache();
+        return $result;
     }
 
     public function delete(Product $product): bool
     {
-        return $product->delete();
+        $result = $product->delete();
+        $this->clearCache();
+        return $result;
+    }
+
+    private function clearCache(): void
+    {
+        Cache::tags(['products'])->flush();
     }
 }
