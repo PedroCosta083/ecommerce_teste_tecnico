@@ -39,6 +39,17 @@ class CategoryService
         return $this->categoryRepository->findRootCategories();
     }
 
+    public function getCategoryProducts(int $categoryId)
+    {
+        $category = $this->categoryRepository->findById($categoryId);
+        
+        if (!$category) {
+            return null;
+        }
+
+        return $category->products()->with(['category', 'tags'])->paginate(15);
+    }
+
     public function createCategory(CreateCategoryDTO $dto): Category
     {
         $data = [

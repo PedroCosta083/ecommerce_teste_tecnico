@@ -129,4 +129,17 @@ class OrderService
 
         return $this->orderRepository->delete($order);
     }
+
+    public function updateOrderStatus(int $id, string $status): ?Order
+    {
+        $order = $this->orderRepository->findById($id);
+        
+        if (!$order) {
+            return null;
+        }
+
+        $this->orderRepository->update($order, ['status' => $status]);
+
+        return $order->fresh();
+    }
 }
