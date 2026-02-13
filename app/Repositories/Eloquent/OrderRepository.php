@@ -27,7 +27,7 @@ class OrderRepository implements OrderRepositoryInterface
 
     public function findWithFilters(OrderFilterDTO $filters): LengthAwarePaginator
     {
-        $query = Order::with(['user', 'orderItems.product']);
+        $query = Order::query();
 
         if ($filters->userId) {
             $query->where('user_id', $filters->userId);
@@ -55,7 +55,7 @@ class OrderRepository implements OrderRepositoryInterface
 
         $query->orderBy($filters->sortBy, $filters->sortDirection);
 
-        return $query->paginate($filters->perPage);
+        return $query->with(['user', 'orderItems.product'])->paginate($filters->perPage);
     }
 
     public function create(array $data): Order
