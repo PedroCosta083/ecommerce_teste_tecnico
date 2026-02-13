@@ -37,4 +37,15 @@ class Category extends Model
     {
         return $this->hasMany(Product::class);
     }
+
+    // Scopes
+    public function scopeActive($query)
+    {
+        return $query->where('active', true);
+    }
+
+    public function scopeRoot($query)
+    {
+        return $query->whereNull('parent_id');
+    }
 }

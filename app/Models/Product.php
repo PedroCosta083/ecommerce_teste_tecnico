@@ -50,4 +50,20 @@ class Product extends Model
     {
         return $this->hasMany(StockMovement::class);
     }
+
+    // Scopes
+    public function scopeActive($query)
+    {
+        return $query->where('active', true);
+    }
+
+    public function scopeInStock($query)
+    {
+        return $query->where('quantity', '>', 0);
+    }
+
+    public function scopeLowStock($query)
+    {
+        return $query->whereColumn('quantity', '<=', 'min_quantity');
+    }
 }
