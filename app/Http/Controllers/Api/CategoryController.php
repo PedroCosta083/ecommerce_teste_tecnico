@@ -67,4 +67,23 @@ class CategoryController extends ApiController
 
         return $this->success(null, 'Category deleted successfully');
     }
+
+    public function products(int $category): JsonResponse
+    {
+        $products = $this->categoryService->getCategoryProducts($category);
+
+        if ($products === null) {
+            return $this->error('Category not found', 404);
+        }
+
+        return $this->success([
+            'data' => \App\Http\Resources\ProductResource::collection($products->items()),
+            'meta' => [
+                'current_page' => $products->currentPage(),
+                'last_page' => $products->lastPage(),
+                'per_page' => $products->perPage(),
+                'total' => $products->total(),
+            ]
+        ]);
+    }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
 use App\DTOs\StockMovement\CreateStockMovementDTO;
 use App\Http\Requests\StockMovement\CreateStockMovementRequest;
@@ -9,7 +9,7 @@ use App\Services\StockMovementService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-class StockMovementController extends Controller
+class StockMovementController extends ApiController
 {
     public function __construct(
         private StockMovementService $stockMovementService
@@ -29,7 +29,7 @@ class StockMovementController extends Controller
             $movements = $this->stockMovementService->getRecentMovements($limit);
         }
 
-        return response()->json(StockMovementResource::collection($movements));
+        return $this->success(StockMovementResource::collection($movements));
     }
 
     public function store(CreateStockMovementRequest $request): JsonResponse
@@ -38,15 +38,15 @@ class StockMovementController extends Controller
             $dto = CreateStockMovementDTO::fromRequest($request->validated());
             $movement = $this->stockMovementService->createMovement($dto);
 
-            return response()->json(new StockMovementResource($movement), 201);
+            return $this->success(new StockMovementResource($movement), 'Stock movement created successfully', 201);
         } catch (\Exception $e) {
-            return response()->json(['message' => $e->getMessage()], 400);
+            return $this->error($e->getMessage(), 400);
         }
     }
 
     public function summary(int $productId): JsonResponse
     {
         $summary = $this->stockMovementService->getProductStockSummary($productId);
-        return response()->json($summary);
+        return $this->success($summary);
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
 use App\Services\ProductService;
 use App\DTOs\Product\{CreateProductDTO, UpdateProductDTO, ProductFilterDTO};
@@ -8,7 +8,7 @@ use App\Http\Requests\Product\{CreateProductRequest, UpdateProductRequest};
 use App\Http\Resources\ProductResource;
 use Illuminate\Http\{JsonResponse, Request};
 
-class ProductController extends Controller
+class ProductController extends ApiController
 {
     public function __construct(
         private ProductService $productService
@@ -19,7 +19,7 @@ class ProductController extends Controller
         $filters = ProductFilterDTO::fromRequest($request->all());
         $products = $this->productService->getProductsWithFilters($filters);
 
-        return response()->json([
+        return $this->success([
             'data' => ProductResource::collection($products->items()),
             'meta' => [
                 'current_page' => $products->currentPage(),
@@ -35,10 +35,10 @@ class ProductController extends Controller
         $product = $this->productService->getProductById($id);
 
         if (!$product) {
-            return response()->json(['message' => 'Product not found'], 404);
+            return $this->error('Product not found', 404);
         }
 
-        return response()->json(new ProductResource($product));
+        return $this->success(new ProductResource($product));
     }
 
     public function store(CreateProductRequest $request): JsonResponse
@@ -46,7 +46,7 @@ class ProductController extends Controller
         $dto = CreateProductDTO::fromRequest($request->validated());
         $product = $this->productService->createProduct($dto);
 
-        return response()->json(new ProductResource($product), 201);
+        return $this->success(new ProductResource($product), 'Product created successfully', 201);
     }
 
     public function update(UpdateProductRequest $request, int $id): JsonResponse
@@ -55,10 +55,10 @@ class ProductController extends Controller
         $product = $this->productService->updateProduct($id, $dto);
 
         if (!$product) {
-            return response()->json(['message' => 'Product not found'], 404);
+            return $this->error('Product not found', 404);
         }
 
-        return response()->json(new ProductResource($product));
+        return $this->success(new ProductResource($product), 'Product updated successfully');
     }
 
     public function destroy(int $id): JsonResponse
@@ -66,9 +66,9 @@ class ProductController extends Controller
         $deleted = $this->productService->deleteProduct($id);
 
         if (!$deleted) {
-            return response()->json(['message' => 'Product not found'], 404);
+            return $this->error('Product not found', 404);
         }
 
-        return response()->json(['message' => 'Product deleted successfully']);
+        return $this->success(null, 'Product deleted successfully');
     }
 }

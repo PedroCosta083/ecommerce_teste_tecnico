@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
 use App\DTOs\Order\CreateOrderDTO;
 use App\DTOs\Order\UpdateOrderDTO;
@@ -12,7 +12,7 @@ use App\Services\OrderService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-class OrderController extends Controller
+class OrderController extends ApiController
 {
     public function __construct(
         private OrderService $orderService
@@ -23,7 +23,7 @@ class OrderController extends Controller
         $filters = OrderFilterDTO::fromRequest($request->all());
         $orders = $this->orderService->getOrdersWithFilters($filters);
 
-        return response()->json([
+        return $this->success([
             'data' => OrderResource::collection($orders->items()),
             'meta' => [
                 'current_page' => $orders->currentPage(),
@@ -39,10 +39,10 @@ class OrderController extends Controller
         $order = $this->orderService->getOrderById($id);
 
         if (!$order) {
-            return response()->json(['message' => 'Order not found'], 404);
+            return $this->error('Order not found', 404);
         }
 
-        return response()->json(new OrderResource($order));
+        return $this->success(new OrderResource($order));
     }
 
     public function store(CreateOrderRequest $request): JsonResponse
@@ -50,7 +50,7 @@ class OrderController extends Controller
         $dto = CreateOrderDTO::fromRequest($request->validated());
         $order = $this->orderService->createOrder($dto);
 
-        return response()->json(new OrderResource($order), 201);
+        return $this->success(new OrderResource($order), 'Order created successfully', 201);
     }
 
     public function update(UpdateOrderRequest $request, int $id): JsonResponse
@@ -59,10 +59,23 @@ class OrderController extends Controller
         $order = $this->orderService->updateOrder($id, $dto);
 
         if (!$order) {
-            return response()->json(['message' => 'Order not found'], 404);
+            return $this->error('Order not found', 404);
         }
 
-        return response()->json(new OrderResource($order));
+        return $this->success(new OrderResource($order), 'Order updated successfully');
+    }
+
+    public function updateStatus(Request $request, int $id): JsonResponse
+    {
+        $request->validate(['status' => 'required|in:pendente,processando,enviado,entregue,cancelado']);
+        
+        $order = $this->orderService->updateOrderStatus($id, $request->status);
+
+        if (!$order) {
+            return $this->error('Order not found', 404);
+        }
+
+        return $this->success(new OrderResource($order), 'Order status updated successfully');
     }
 
     public function destroy(int $id): JsonResponse
@@ -70,9 +83,9 @@ class OrderController extends Controller
         $deleted = $this->orderService->deleteOrder($id);
 
         if (!$deleted) {
-            return response()->json(['message' => 'Order not found'], 404);
+            return $this->error('Order not found', 404);
         }
 
-        return response()->json(['message' => 'Order deleted successfully']);
+        return $this->success(null, 'Order deleted successfully');
     }
 }

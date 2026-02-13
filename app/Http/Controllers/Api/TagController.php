@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
 use App\DTOs\Tag\CreateTagDTO;
 use App\DTOs\Tag\UpdateTagDTO;
@@ -10,7 +10,7 @@ use App\Http\Resources\TagResource;
 use App\Services\TagService;
 use Illuminate\Http\JsonResponse;
 
-class TagController extends Controller
+class TagController extends ApiController
 {
     public function __construct(
         private TagService $tagService
@@ -19,7 +19,7 @@ class TagController extends Controller
     public function index(): JsonResponse
     {
         $tags = $this->tagService->getAllTags();
-        return response()->json(TagResource::collection($tags));
+        return $this->success(TagResource::collection($tags));
     }
 
     public function show(int $id): JsonResponse
@@ -27,10 +27,10 @@ class TagController extends Controller
         $tag = $this->tagService->getTagById($id);
 
         if (!$tag) {
-            return response()->json(['message' => 'Tag not found'], 404);
+            return $this->error('Tag not found', 404);
         }
 
-        return response()->json(new TagResource($tag));
+        return $this->success(new TagResource($tag));
     }
 
     public function store(CreateTagRequest $request): JsonResponse
@@ -38,7 +38,7 @@ class TagController extends Controller
         $dto = CreateTagDTO::fromRequest($request->validated());
         $tag = $this->tagService->createTag($dto);
 
-        return response()->json(new TagResource($tag), 201);
+        return $this->success(new TagResource($tag), 'Tag created successfully', 201);
     }
 
     public function update(UpdateTagRequest $request, int $id): JsonResponse
@@ -47,10 +47,10 @@ class TagController extends Controller
         $tag = $this->tagService->updateTag($id, $dto);
 
         if (!$tag) {
-            return response()->json(['message' => 'Tag not found'], 404);
+            return $this->error('Tag not found', 404);
         }
 
-        return response()->json(new TagResource($tag));
+        return $this->success(new TagResource($tag), 'Tag updated successfully');
     }
 
     public function destroy(int $id): JsonResponse
@@ -58,9 +58,9 @@ class TagController extends Controller
         $deleted = $this->tagService->deleteTag($id);
 
         if (!$deleted) {
-            return response()->json(['message' => 'Tag not found'], 404);
+            return $this->error('Tag not found', 404);
         }
 
-        return response()->json(['message' => 'Tag deleted successfully']);
+        return $this->success(null, 'Tag deleted successfully');
     }
 }
