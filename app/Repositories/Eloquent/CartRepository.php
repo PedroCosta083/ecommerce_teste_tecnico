@@ -10,12 +10,12 @@ class CartRepository implements CartRepositoryInterface
 {
     public function findByUser(int $userId): ?Cart
     {
-        return Cart::with(['cartItems.product'])->where('user_id', $userId)->first();
+        return Cart::with(['items.product'])->where('user_id', $userId)->first();
     }
 
     public function findBySession(string $sessionId): ?Cart
     {
-        return Cart::with(['cartItems.product'])->where('session_id', $sessionId)->first();
+        return Cart::with(['items.product'])->where('session_id', $sessionId)->first();
     }
 
     public function findOrCreateByUser(int $userId): Cart
@@ -48,7 +48,7 @@ class CartRepository implements CartRepositoryInterface
 
     public function clearCart(Cart $cart): bool
     {
-        return $cart->cartItems()->delete();
+        return $cart->items()->delete();
     }
 
     public function delete(Cart $cart): bool
