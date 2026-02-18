@@ -5,6 +5,9 @@ namespace App\Services;
 use App\DTOs\Order\CreateOrderDTO;
 use App\DTOs\Order\UpdateOrderDTO;
 use App\DTOs\Order\OrderFilterDTO;
+use App\Events\OrderCreated;
+use App\Jobs\ProcessOrder;
+use App\Jobs\SendOrderConfirmation;
 use App\Models\Order;
 use App\Repositories\Contracts\OrderRepositoryInterface;
 use App\Repositories\Contracts\OrderItemRepositoryInterface;
@@ -43,15 +46,19 @@ class OrderService
 
     public function createOrder(CreateOrderDTO $dto): Order
     {
-        return DB::transaction(function () use ($dto) {
+        $order = DB::transaction(function () use ($dto) {
             $subtotal = 0;
             $orderItems = [];
 
-            // Calcular subtotal e preparar itens
+            // Validar estoque e calcular subtotal
             foreach ($dto->items as $item) {
                 $product = $this->productRepository->findById($item['product_id']);
                 if (!$product) {
                     throw new \Exception("Product not found: {$item['product_id']}");
+                }
+
+                if ($product->quantity < $item['quantity']) {
+                    throw new \Exception("Insufficient stock for product: {$product->name}");
                 }
 
                 $quantity = $item['quantity'];
@@ -67,12 +74,11 @@ class OrderService
                 ];
             }
 
-            $tax = $subtotal * 0.1; // 10% tax
-            $shippingCost = 15.00; // Fixed shipping
+            $tax = $subtotal * 0.1;
+            $shippingCost = 15.00;
             $total = $subtotal + $tax + $shippingCost;
 
-            // Criar pedido
-            $orderData = [
+            $order = $this->orderRepository->create([
                 'user_id' => $dto->userId,
                 'status' => 'pending',
                 'subtotal' => $subtotal,
@@ -82,11 +88,8 @@ class OrderService
                 'shipping_address' => $dto->shippingAddress,
                 'billing_address' => $dto->billingAddress,
                 'notes' => $dto->notes,
-            ];
+            ]);
 
-            $order = $this->orderRepository->create($orderData);
-
-            // Criar itens do pedido
             foreach ($orderItems as &$item) {
                 $item['order_id'] = $order->id;
                 $item['created_at'] = now();
@@ -95,8 +98,13 @@ class OrderService
 
             $this->orderItemRepository->createMany($orderItems);
 
-            return $order->fresh(['orderItems.product']);
+            return $order->fresh(['orderItems.product', 'user']);
         });
+
+        // Disparar evento OrderCreated
+        OrderCreated::dispatch($order);
+
+        return $order;
     }
 
     public function updateOrder(int $id, UpdateOrderDTO $dto): ?Order

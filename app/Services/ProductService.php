@@ -5,6 +5,7 @@ namespace App\Services;
 use App\DTOs\Product\CreateProductDTO;
 use App\DTOs\Product\UpdateProductDTO;
 use App\DTOs\Product\ProductFilterDTO;
+use App\Events\ProductCreated;
 use App\Models\Product;
 use App\Repositories\Contracts\ProductRepositoryInterface;
 use Illuminate\Database\Eloquent\Collection;
@@ -65,6 +66,9 @@ class ProductService
         if (!empty($dto->tagIds)) {
             $product->tags()->sync($dto->tagIds);
         }
+
+        // Disparar evento ProductCreated
+        ProductCreated::dispatch($product);
 
         return $product;
     }
