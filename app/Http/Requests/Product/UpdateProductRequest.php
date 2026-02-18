@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests\Product;
 
+use App\Rules\UniqueSlug;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class UpdateProductRequest extends FormRequest
 {
@@ -18,12 +18,7 @@ class UpdateProductRequest extends FormRequest
         
         return [
             'name' => 'sometimes|string|max:255',
-            'slug' => [
-                'sometimes',
-                'string',
-                'max:255',
-                Rule::unique('products', 'slug')->ignore($productId)
-            ],
+            'slug' => ['sometimes', 'string', 'max:255', new UniqueSlug('products', $productId)],
             'description' => 'nullable|string',
             'price'       => 'sometimes|numeric|min:0',
             'cost_price'  => 'sometimes|numeric|min:0',

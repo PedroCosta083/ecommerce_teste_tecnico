@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Product;
 
+use App\Rules\UniqueSlug;
 use Illuminate\Foundation\Http\FormRequest;
 
 class CreateProductRequest extends FormRequest
@@ -15,7 +16,7 @@ class CreateProductRequest extends FormRequest
     {
         return [
             'name'        => 'required|string|max:255',
-            'slug'        => 'required|string|max:255|unique:products,slug',
+            'slug'        => ['required', 'string', 'max:255', new UniqueSlug('products')],
             'description' => 'nullable|string',
             'price'       => 'required|numeric|min:0',
             'cost_price'  => 'required|numeric|min:0',

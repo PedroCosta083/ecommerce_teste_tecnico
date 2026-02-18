@@ -2,8 +2,9 @@
 
 namespace App\Http\Requests\Category;
 
+use App\Rules\UniqueSlug;
+use App\Rules\ValidParentCategory;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class UpdateCategoryRequest extends FormRequest
 {
@@ -27,14 +28,9 @@ class UpdateCategoryRequest extends FormRequest
 
         return [
             'name' => 'sometimes|string|max:255',
-            'slug' => [
-                'sometimes',
-                'string',
-                'max:255',
-                Rule::unique('categories', 'slug')->ignore($categoryId)
-            ],
+            'slug' => ['sometimes', 'string', 'max:255', new UniqueSlug('categories', $categoryId)],
             'description' => 'nullable|string',
-            'parent_id' => 'sometimes|nullable|exists:categories,id',
+            'parent_id' => ['sometimes', 'nullable', new ValidParentCategory($categoryId)],
             'active' => 'boolean',
         ];
     }

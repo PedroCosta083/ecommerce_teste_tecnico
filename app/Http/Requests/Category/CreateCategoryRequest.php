@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests\Category;
 
+use App\Rules\UniqueSlug;
+use App\Rules\ValidParentCategory;
 use Illuminate\Foundation\Http\FormRequest;
 
 class CreateCategoryRequest extends FormRequest
@@ -24,9 +26,9 @@ class CreateCategoryRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'slug' => 'required|string|max:255|unique:categories,slug',
+            'slug' => ['required', 'string', 'max:255', new UniqueSlug('categories')],
             'description' => 'nullable|string',
-            'parent_id' => 'nullable|exists:categories,id',
+            'parent_id' => ['nullable', new ValidParentCategory()],
             'active' => 'boolean',
         ];
     }
