@@ -119,14 +119,29 @@ class CheckoutController extends Controller
             'items.*.quantity' => 'required|integer|min:1',
             'shipping_address' => 'required|array',
             'billing_address' => 'required|array',
-            'cart_item_ids' => 'nullable|array', // IDs dos itens do carrinho para remover
+            'cart_item_ids' => 'nullable|array',
         ]);
+
+        // Converter arrays de endereço para strings
+        $shippingAddress = implode(', ', array_filter([
+            $validated['shipping_address']['street'] ?? '',
+            $validated['shipping_address']['city'] ?? '',
+            $validated['shipping_address']['state'] ?? '',
+            $validated['shipping_address']['zip'] ?? '',
+        ]));
+
+        $billingAddress = implode(', ', array_filter([
+            $validated['billing_address']['street'] ?? '',
+            $validated['billing_address']['city'] ?? '',
+            $validated['billing_address']['state'] ?? '',
+            $validated['billing_address']['zip'] ?? '',
+        ]));
 
         $dto = new CreateOrderDTO(
             userId: auth()->id(),
             items: $validated['items'],
-            shippingAddress: $validated['shipping_address'],
-            billingAddress: $validated['billing_address'],
+            shippingAddress: $shippingAddress,
+            billingAddress: $billingAddress,
             notes: $request->input('notes')
         );
 
@@ -137,7 +152,6 @@ class CheckoutController extends Controller
             $cartItemIds = $request->input('cart_item_ids', []);
             
             if (!empty($cartItemIds)) {
-                // Remover apenas os itens específicos
                 \App\Models\CartItem::whereIn('id', $cartItemIds)
                     ->where('cart_id', function($query) {
                         $query->select('id')
@@ -149,7 +163,6 @@ class CheckoutController extends Controller
             }
         }
         
-        // Limpar sessão após finalizar pedido
         session()->forget('guest_cart');
 
         return Inertia::render('checkout/success', [

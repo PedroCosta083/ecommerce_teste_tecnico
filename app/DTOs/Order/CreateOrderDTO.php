@@ -7,8 +7,8 @@ class CreateOrderDTO
     public function __construct(
         public int $userId,
         public array $items,
-        public array $shippingAddress,
-        public array $billingAddress,
+        public string $shippingAddress,
+        public string $billingAddress,
         public ?string $notes = null
     ) {}
 
