@@ -6,10 +6,13 @@ use App\Services\ProductService;
 use App\DTOs\Product\{CreateProductDTO, UpdateProductDTO, ProductFilterDTO};
 use App\Http\Requests\Product\{CreateProductRequest, UpdateProductRequest};
 use App\Http\Resources\ProductResource;
+use App\Http\Controllers\Traits\HasCrudResponses;
 use Illuminate\Http\{JsonResponse, Request};
 
 class ProductController extends ApiController
 {
+    use HasCrudResponses;
+
     public function __construct(
         private ProductService $productService
     ) {}
@@ -18,57 +21,32 @@ class ProductController extends ApiController
     {
         $filters = ProductFilterDTO::fromRequest($request->all());
         $products = $this->productService->getProductsWithFilters($filters);
-
-        return $this->success([
-            'data' => ProductResource::collection($products->items()),
-            'meta' => [
-                'current_page' => $products->currentPage(),
-                'last_page' => $products->lastPage(),
-                'per_page' => $products->perPage(),
-                'total' => $products->total(),
-            ]
-        ]);
+        return $this->paginatedResponse($products, ProductResource::class);
     }
 
     public function show(int $id): JsonResponse
     {
         $product = $this->productService->getProductById($id);
-
-        if (!$product) {
-            return $this->error('Product not found', 404);
-        }
-
-        return $this->success(new ProductResource($product));
+        return $this->showResource($product, ProductResource::class, 'Product not found');
     }
 
     public function store(CreateProductRequest $request): JsonResponse
     {
         $dto = CreateProductDTO::fromRequest($request->validated());
         $product = $this->productService->createProduct($dto);
-
-        return $this->success(new ProductResource($product), 'Product created successfully', 201);
+        return $this->storeResource($product, ProductResource::class, 'Product created successfully');
     }
 
     public function update(UpdateProductRequest $request, int $id): JsonResponse
     {
         $dto = UpdateProductDTO::fromRequest($request->validated());
         $product = $this->productService->updateProduct($id, $dto);
-
-        if (!$product) {
-            return $this->error('Product not found', 404);
-        }
-
-        return $this->success(new ProductResource($product), 'Product updated successfully');
+        return $this->updateResource($product, ProductResource::class, 'Product updated successfully', 'Product not found');
     }
 
     public function destroy(int $id): JsonResponse
     {
         $deleted = $this->productService->deleteProduct($id);
-
-        if (!$deleted) {
-            return $this->error('Product not found', 404);
-        }
-
-        return $this->success(null, 'Product deleted successfully');
+        return $this->destroyResource($deleted, 'Product deleted successfully', 'Product not found');
     }
 }

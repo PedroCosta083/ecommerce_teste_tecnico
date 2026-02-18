@@ -2,16 +2,17 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\DTOs\Tag\CreateTagDTO;
-use App\DTOs\Tag\UpdateTagDTO;
-use App\Http\Requests\Tag\CreateTagRequest;
-use App\Http\Requests\Tag\UpdateTagRequest;
+use App\DTOs\Tag\{CreateTagDTO, UpdateTagDTO};
+use App\Http\Requests\Tag\{CreateTagRequest, UpdateTagRequest};
 use App\Http\Resources\TagResource;
 use App\Services\TagService;
+use App\Http\Controllers\Traits\HasCrudResponses;
 use Illuminate\Http\JsonResponse;
 
 class TagController extends ApiController
 {
+    use HasCrudResponses;
+
     public function __construct(
         private TagService $tagService
     ) {}
@@ -25,42 +26,26 @@ class TagController extends ApiController
     public function show(int $id): JsonResponse
     {
         $tag = $this->tagService->getTagById($id);
-
-        if (!$tag) {
-            return $this->error('Tag not found', 404);
-        }
-
-        return $this->success(new TagResource($tag));
+        return $this->showResource($tag, TagResource::class, 'Tag not found');
     }
 
     public function store(CreateTagRequest $request): JsonResponse
     {
         $dto = CreateTagDTO::fromRequest($request->validated());
         $tag = $this->tagService->createTag($dto);
-
-        return $this->success(new TagResource($tag), 'Tag created successfully', 201);
+        return $this->storeResource($tag, TagResource::class, 'Tag created successfully');
     }
 
     public function update(UpdateTagRequest $request, int $id): JsonResponse
     {
         $dto = UpdateTagDTO::fromRequest($request->validated());
         $tag = $this->tagService->updateTag($id, $dto);
-
-        if (!$tag) {
-            return $this->error('Tag not found', 404);
-        }
-
-        return $this->success(new TagResource($tag), 'Tag updated successfully');
+        return $this->updateResource($tag, TagResource::class, 'Tag updated successfully', 'Tag not found');
     }
 
     public function destroy(int $id): JsonResponse
     {
         $deleted = $this->tagService->deleteTag($id);
-
-        if (!$deleted) {
-            return $this->error('Tag not found', 404);
-        }
-
-        return $this->success(null, 'Tag deleted successfully');
+        return $this->destroyResource($deleted, 'Tag deleted successfully', 'Tag not found');
     }
 }

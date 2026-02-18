@@ -2,16 +2,17 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\DTOs\Category\CreateCategoryDTO;
-use App\DTOs\Category\UpdateCategoryDTO;
-use App\Http\Requests\Category\CreateCategoryRequest;
-use App\Http\Requests\Category\UpdateCategoryRequest;
-use App\Http\Resources\CategoryResource;
+use App\DTOs\Category\{CreateCategoryDTO, UpdateCategoryDTO};
+use App\Http\Requests\Category\{CreateCategoryRequest, UpdateCategoryRequest};
+use App\Http\Resources\{CategoryResource, ProductResource};
 use App\Services\CategoryService;
+use App\Http\Controllers\Traits\HasCrudResponses;
 use Illuminate\Http\JsonResponse;
 
 class CategoryController extends ApiController
 {
+    use HasCrudResponses;
+
     public function __construct(
         private CategoryService $categoryService
     ) {}
@@ -25,20 +26,14 @@ class CategoryController extends ApiController
     public function show(int $id): JsonResponse
     {
         $category = $this->categoryService->getCategoryById($id);
-
-        if (!$category) {
-            return $this->error('Category not found', 404);
-        }
-
-        return $this->success(new CategoryResource($category));
+        return $this->showResource($category, CategoryResource::class, 'Category not found');
     }
 
     public function store(CreateCategoryRequest $request): JsonResponse
     {
         $dto = CreateCategoryDTO::fromRequest($request->validated());
         $category = $this->categoryService->createCategory($dto);
-
-        return $this->success(new CategoryResource($category), 'Category created successfully', 201);
+        return $this->storeResource($category, CategoryResource::class, 'Category created successfully');
     }
 
     public function update(UpdateCategoryRequest $request, int $id): JsonResponse
@@ -49,41 +44,23 @@ class CategoryController extends ApiController
 
         $dto = UpdateCategoryDTO::fromRequest($request->validated());
         $category = $this->categoryService->updateCategory($id, $dto);
-
-        if (!$category) {
-            return $this->error('Category not found', 404);
-        }
-
-        return $this->success(new CategoryResource($category), 'Category updated successfully');
+        return $this->updateResource($category, CategoryResource::class, 'Category updated successfully', 'Category not found');
     }
 
     public function destroy(int $id): JsonResponse
     {
         $deleted = $this->categoryService->deleteCategory($id);
-
-        if (!$deleted) {
-            return $this->error('Category not found', 404);
-        }
-
-        return $this->success(null, 'Category deleted successfully');
+        return $this->destroyResource($deleted, 'Category deleted successfully', 'Category not found');
     }
 
     public function products(int $category): JsonResponse
     {
         $products = $this->categoryService->getCategoryProducts($category);
-
+        
         if ($products === null) {
             return $this->error('Category not found', 404);
         }
 
-        return $this->success([
-            'data' => \App\Http\Resources\ProductResource::collection($products->items()),
-            'meta' => [
-                'current_page' => $products->currentPage(),
-                'last_page' => $products->lastPage(),
-                'per_page' => $products->perPage(),
-                'total' => $products->total(),
-            ]
-        ]);
+        return $this->paginatedResponse($products, ProductResource::class);
     }
 }
