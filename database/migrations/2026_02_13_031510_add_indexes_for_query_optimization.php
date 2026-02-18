@@ -14,52 +14,63 @@ return new class extends Migration
             return;
         }
 
-        Schema::table('products', function (Blueprint $table) {
-            $table->index('slug');
-            $table->index('active');
-            $table->index(['active', 'category_id']);
-            $table->index('price');
-        });
+        // Skip if indexes already exist (idempotent)
+        try {
+            Schema::table('products', function (Blueprint $table) {
+                if (!$this->indexExists('products', 'products_slug_index')) $table->index('slug');
+                if (!$this->indexExists('products', 'products_active_index')) $table->index('active');
+                if (!$this->indexExists('products', 'products_active_category_id_index')) $table->index(['active', 'category_id']);
+                if (!$this->indexExists('products', 'products_price_index')) $table->index('price');
+            });
 
-        Schema::table('categories', function (Blueprint $table) {
-            $table->index('slug');
-            $table->index('active');
-            $table->index('parent_id');
-            $table->index(['active', 'parent_id']);
-        });
+            Schema::table('categories', function (Blueprint $table) {
+                if (!$this->indexExists('categories', 'categories_slug_index')) $table->index('slug');
+                if (!$this->indexExists('categories', 'categories_active_index')) $table->index('active');
+                if (!$this->indexExists('categories', 'categories_parent_id_index')) $table->index('parent_id');
+                if (!$this->indexExists('categories', 'categories_active_parent_id_index')) $table->index(['active', 'parent_id']);
+            });
 
-        Schema::table('tags', function (Blueprint $table) {
-            $table->index('slug');
-        });
+            Schema::table('tags', function (Blueprint $table) {
+                if (!$this->indexExists('tags', 'tags_slug_index')) $table->index('slug');
+            });
 
-        Schema::table('orders', function (Blueprint $table) {
-            $table->index('user_id');
-            $table->index('status');
-            $table->index(['user_id', 'status']);
-            $table->index('created_at');
-        });
+            Schema::table('orders', function (Blueprint $table) {
+                if (!$this->indexExists('orders', 'orders_user_id_index')) $table->index('user_id');
+                if (!$this->indexExists('orders', 'orders_status_index')) $table->index('status');
+                if (!$this->indexExists('orders', 'orders_user_id_status_index')) $table->index(['user_id', 'status']);
+                if (!$this->indexExists('orders', 'orders_created_at_index')) $table->index('created_at');
+            });
 
-        Schema::table('order_items', function (Blueprint $table) {
-            $table->index('order_id');
-            $table->index('product_id');
-        });
+            Schema::table('order_items', function (Blueprint $table) {
+                if (!$this->indexExists('order_items', 'order_items_order_id_index')) $table->index('order_id');
+                if (!$this->indexExists('order_items', 'order_items_product_id_index')) $table->index('product_id');
+            });
 
-        Schema::table('stock_movements', function (Blueprint $table) {
-            $table->index('product_id');
-            $table->index('type');
-            $table->index(['product_id', 'type']);
-            $table->index('created_at');
-        });
+            Schema::table('stock_movements', function (Blueprint $table) {
+                if (!$this->indexExists('stock_movements', 'stock_movements_product_id_index')) $table->index('product_id');
+                if (!$this->indexExists('stock_movements', 'stock_movements_type_index')) $table->index('type');
+                if (!$this->indexExists('stock_movements', 'stock_movements_product_id_type_index')) $table->index(['product_id', 'type']);
+                if (!$this->indexExists('stock_movements', 'stock_movements_created_at_index')) $table->index('created_at');
+            });
 
-        Schema::table('carts', function (Blueprint $table) {
-            $table->index('user_id');
-            $table->index('session_id');
-        });
+            Schema::table('carts', function (Blueprint $table) {
+                if (!$this->indexExists('carts', 'carts_user_id_index')) $table->index('user_id');
+                if (!$this->indexExists('carts', 'carts_session_id_index')) $table->index('session_id');
+            });
 
-        Schema::table('cart_items', function (Blueprint $table) {
-            $table->index('cart_id');
-            $table->index('product_id');
-        });
+            Schema::table('cart_items', function (Blueprint $table) {
+                if (!$this->indexExists('cart_items', 'cart_items_cart_id_index')) $table->index('cart_id');
+                if (!$this->indexExists('cart_items', 'cart_items_product_id_index')) $table->index('product_id');
+            });
+        } catch (\Exception $e) {
+            // Indexes already exist, skip
+        }
+    }
+
+    private function indexExists(string $table, string $index): bool
+    {
+        $indexes = DB::select("SELECT indexname FROM pg_indexes WHERE tablename = ? AND indexname = ?", [$table, $index]);
+        return count($indexes) > 0;
     }
 
     public function down(): void
