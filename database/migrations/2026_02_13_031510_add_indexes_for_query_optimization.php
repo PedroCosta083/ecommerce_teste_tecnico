@@ -3,11 +3,17 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
     public function up(): void
     {
+        // Skip for SQLite in testing
+        if (DB::connection()->getDriverName() === 'sqlite') {
+            return;
+        }
+
         Schema::table('products', function (Blueprint $table) {
             $table->index('slug');
             $table->index('active');
@@ -58,6 +64,11 @@ return new class extends Migration
 
     public function down(): void
     {
+        // Skip for SQLite in testing
+        if (DB::connection()->getDriverName() === 'sqlite') {
+            return;
+        }
+
         Schema::table('products', function (Blueprint $table) {
             $table->dropIndex(['slug']);
             $table->dropIndex(['active']);
