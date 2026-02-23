@@ -1,9 +1,10 @@
-import { Head } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 import AppLayout from '@/layouts/app-layout';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, LineElement, PointElement, ArcElement, Title, Tooltip, Legend } from 'chart.js';
 import { Bar, Line, Doughnut } from 'react-chartjs-2';
 import { Package, ShoppingCart, DollarSign, Users } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, ArcElement, Title, Tooltip, Legend);
 
@@ -24,10 +25,20 @@ interface DashboardMetrics {
 }
 
 export default function Dashboard() {
+    const { auth } = usePage().props as any;
     const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
     const [loading, setLoading] = useState(true);
+    
+    const hasMetricsAccess = auth?.user?.roles?.some((role: any) => 
+        ['admin', 'manager', 'editor'].includes(role.name)
+    );
 
     useEffect(() => {
+        if (!hasMetricsAccess) {
+            setLoading(false);
+            return;
+        }
+        
         fetch('/api/v1/dashboard/metrics', {
             headers: {
                 'Accept': 'application/json',
@@ -41,15 +52,53 @@ export default function Dashboard() {
                 setLoading(false);
             })
             .catch(() => setLoading(false));
-    }, []);
+    }, [hasMetricsAccess]);
 
     if (loading) {
         return (
             <AppLayout>
                 <Head title="Dashboard" />
-                <div className="py-12">
+                <div className="py-8">
+                    <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+                        <div>
+                            <Skeleton className="h-10 w-48" />
+                            <Skeleton className="h-5 w-96 mt-2" />
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                            {Array.from({ length: 4 }).map((_, i) => (
+                                <div key={i} className="bg-card rounded-xl shadow-lg p-6">
+                                    <Skeleton className="h-4 w-32 mb-4" />
+                                    <Skeleton className="h-10 w-24 mb-2" />
+                                    <Skeleton className="h-4 w-20" />
+                                </div>
+                            ))}
+                        </div>
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                            <div className="lg:col-span-2 bg-white rounded-xl shadow-lg p-6">
+                                <Skeleton className="h-6 w-48 mb-4" />
+                                <Skeleton className="h-[300px] w-full" />
+                            </div>
+                            <div className="bg-white rounded-xl shadow-lg p-6">
+                                <Skeleton className="h-6 w-48 mb-4" />
+                                <Skeleton className="h-[300px] w-full" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </AppLayout>
+        );
+    }
+
+    if (!hasMetricsAccess) {
+        return (
+            <AppLayout>
+                <Head title="Dashboard" />
+                <div className="py-8">
                     <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                        <div className="text-center">Carregando métricas...</div>
+                        <div className="bg-card rounded-xl shadow-lg p-8 text-center">
+                            <h1 className="text-3xl font-bold text-foreground mb-4">Bem-vindo!</h1>
+                            <p className="text-muted-foreground">Você está logado como {auth?.user?.name}</p>
+                        </div>
                     </div>
                 </div>
             </AppLayout>
@@ -74,8 +123,8 @@ export default function Dashboard() {
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
                     
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-                        <p className="text-gray-600 mt-1">Visão geral do seu e-commerce</p>
+                        <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
+                        <p className="text-muted-foreground mt-1">Visão geral do seu e-commerce</p>
                     </div>
 
                     {/* Overview Cards */}
@@ -137,8 +186,8 @@ export default function Dashboard() {
                     {/* Charts Row 1 */}
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         {/* Sales Last 7 Days */}
-                        <div className="lg:col-span-2 bg-white rounded-xl shadow-lg p-6">
-                            <h3 className="text-lg font-semibold mb-4 text-gray-900">Vendas - Últimos 7 Dias</h3>
+                        <div className="lg:col-span-2 bg-card rounded-xl shadow-lg p-6">
+                            <h3 className="text-lg font-semibold mb-4 text-foreground">Vendas - Últimos 7 Dias</h3>
                             <div style={{ height: '300px' }}>
                                 <Line
                                     data={{
@@ -174,8 +223,8 @@ export default function Dashboard() {
                         </div>
 
                         {/* Sales by Status */}
-                        <div className="bg-white rounded-xl shadow-lg p-6">
-                            <h3 className="text-lg font-semibold mb-4 text-gray-900">Pedidos por Status</h3>
+                        <div className="bg-card rounded-xl shadow-lg p-6">
+                            <h3 className="text-lg font-semibold mb-4 text-foreground">Pedidos por Status</h3>
                             <div style={{ height: '300px' }}>
                                 <Doughnut
                                     data={{
@@ -215,8 +264,8 @@ export default function Dashboard() {
                     {/* Charts Row 2 */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         {/* Top Products */}
-                        <div className="bg-white rounded-xl shadow-lg p-6">
-                            <h3 className="text-lg font-semibold mb-4 text-gray-900">Top 5 Produtos Mais Vendidos</h3>
+                        <div className="bg-card rounded-xl shadow-lg p-6">
+                            <h3 className="text-lg font-semibold mb-4 text-foreground">Top 5 Produtos Mais Vendidos</h3>
                             <div style={{ height: '300px' }}>
                                 <Bar
                                     data={{
@@ -245,8 +294,8 @@ export default function Dashboard() {
                         </div>
 
                         {/* Products by Category */}
-                        <div className="bg-white rounded-xl shadow-lg p-6">
-                            <h3 className="text-lg font-semibold mb-4 text-gray-900">Produtos por Categoria</h3>
+                        <div className="bg-card rounded-xl shadow-lg p-6">
+                            <h3 className="text-lg font-semibold mb-4 text-foreground">Produtos por Categoria</h3>
                             <div style={{ height: '300px' }}>
                                 <Bar
                                     data={{
