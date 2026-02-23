@@ -1,12 +1,14 @@
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import { ShoppingCart, User, Search, CreditCard, Package, Store, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useState, useEffect } from 'react';
 import CartSheet from '@/components/cart-sheet';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface Product {
   id: number;
@@ -36,12 +38,15 @@ interface Props {
 }
 
 export default function StorefrontIndex({ products, categories, filters, auth }: Props) {
+  const { status } = usePage().props as any;
   const [cartCount, setCartCount] = useState(0);
   const [search, setSearch] = useState(filters?.search || '');
   const [cartOpen, setCartOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadCartCount();
+    setLoading(false);
   }, []);
 
   const loadCartCount = async () => {
@@ -85,27 +90,40 @@ export default function StorefrontIndex({ products, categories, filters, auth }:
     <>
       <Head title="Loja" />
       
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
+      <div className="min-h-screen bg-background">
+        {/* Status Message */}
+        {status && (
+          <div className="bg-green-50 dark:bg-green-950/30 border-b border-green-200 dark:border-green-900">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+              <Alert className="bg-transparent border-0 p-0">
+                <AlertDescription className="text-green-800 dark:text-green-300 font-medium">
+                  {status}
+                </AlertDescription>
+              </Alert>
+            </div>
+          </div>
+        )}
+
         {/* Header */}
-        <header className="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-50 border-b">
+        <header className="bg-card/80 backdrop-blur-md shadow-sm sticky top-0 z-50 border-b">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div className="flex items-center justify-between gap-4">
               <Link href="/" className="flex items-center gap-2">
                 <Store className="h-8 w-8 text-primary" />
-                <span className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+                <span className="text-2xl font-bold text-primary">
                   Loja
                 </span>
               </Link>
 
               <form onSubmit={handleSearch} className="flex-1 max-w-2xl">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
                   <Input
                     type="search"
                     placeholder="Buscar produtos..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="pl-10 h-11 bg-gray-50 border-gray-200 focus:bg-white transition-colors"
+                    className="pl-10 h-11 bg-muted/50 focus:bg-card transition-colors"
                   />
                 </div>
               </form>
@@ -148,10 +166,10 @@ export default function StorefrontIndex({ products, categories, filters, auth }:
         </header>
 
         {/* Categories */}
-        <div className="bg-white border-b shadow-sm">
+        <div className="bg-card border-b shadow-sm">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div className="flex items-center gap-4">
-              <span className="text-sm font-medium text-gray-700">Categorias:</span>
+              <span className="text-sm font-medium text-foreground">Categorias:</span>
               <Select
                 value={filters?.category_id?.toString() || 'all'}
                 onValueChange={(value) => {
@@ -162,7 +180,7 @@ export default function StorefrontIndex({ products, categories, filters, auth }:
                   }
                 }}
               >
-                <SelectTrigger className="w-[220px] bg-gray-50">
+                <SelectTrigger className="w-[220px] bg-muted/50">
                   <SelectValue placeholder="Todas as categorias" />
                 </SelectTrigger>
                 <SelectContent>
@@ -181,15 +199,32 @@ export default function StorefrontIndex({ products, categories, filters, auth }:
         {/* Products Grid */}
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">Produtos em Destaque</h2>
-            <p className="text-gray-600 mt-1">Encontre os melhores produtos para você</p>
+            <h2 className="text-2xl font-bold text-foreground">Produtos em Destaque</h2>
+            <p className="text-muted-foreground mt-1">Encontre os melhores produtos para você</p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {products.data.map((product) => (
+            {loading ? (
+              Array.from({ length: 8 }).map((_, i) => (
+                <Card key={i} className="overflow-hidden border-0 shadow-md">
+                  <Skeleton className="aspect-square w-full" />
+                  <CardContent className="p-4 space-y-3">
+                    <Skeleton className="h-6 w-3/4" />
+                    <Skeleton className="h-4 w-1/2" />
+                    <Skeleton className="h-8 w-1/3" />
+                    <Skeleton className="h-4 w-1/4" />
+                  </CardContent>
+                  <CardFooter className="p-4 pt-0 flex gap-2">
+                    <Skeleton className="h-10 flex-1" />
+                    <Skeleton className="h-10 flex-1" />
+                  </CardFooter>
+                </Card>
+              ))
+            ) : (
+              products.data.map((product) => (
               <Card key={product.id} className="group overflow-hidden hover:shadow-2xl transition-all duration-300 border-0 shadow-md">
                 <Link href={`/produto/${product.id}`}>
-                  <div className="relative aspect-square bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden">
+                  <div className="relative aspect-square bg-muted overflow-hidden">
                     {product.image ? (
                       <img 
                         src={product.image} 
@@ -198,7 +233,7 @@ export default function StorefrontIndex({ products, categories, filters, auth }:
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
-                        <Package className="h-20 w-20 text-gray-300" />
+                        <Package className="h-20 w-20 text-muted-foreground" />
                       </div>
                     )}
                   </div>
@@ -206,11 +241,11 @@ export default function StorefrontIndex({ products, categories, filters, auth }:
                 
                 <CardContent className="p-4 space-y-3">
                   <Link href={`/produto/${product.id}`}>
-                    <h3 className="font-semibold text-lg hover:text-primary transition-colors line-clamp-2 min-h-[56px]">
+                    <h3 className="font-semibold text-lg hover:text-primary transition-colors line-clamp-2 min-h-[56px] text-foreground">
                       {product.name}
                     </h3>
                   </Link>
-                  <p className="text-sm text-gray-600">{product.category.name}</p>
+                  <p className="text-sm text-muted-foreground">{product.category.name}</p>
                   
                   <div className="flex items-baseline gap-2">
                     <p className="text-2xl font-bold text-primary">
@@ -218,7 +253,7 @@ export default function StorefrontIndex({ products, categories, filters, auth }:
                     </p>
                   </div>
                   
-                  <p className="text-xs text-green-600 font-medium">✓ {product.quantity} em estoque</p>
+                  <p className="text-xs text-green-600 dark:text-green-400 font-medium">✓ {product.quantity} em estoque</p>
                 </CardContent>
 
                 <CardFooter className="p-4 pt-0 flex gap-2">
@@ -245,7 +280,8 @@ export default function StorefrontIndex({ products, categories, filters, auth }:
                   </Button>
                 </CardFooter>
               </Card>
-            ))}
+              ))
+            )}
           </div>
 
           {/* Pagination */}

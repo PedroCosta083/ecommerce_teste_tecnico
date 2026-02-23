@@ -56,6 +56,11 @@ export default function CheckoutIndex({ items, subtotal, tax, shipping, total, d
       state: '',
       zip_code: '',
     },
+    payment_method: 'credit_card',
+    card_number: '',
+    card_name: '',
+    card_expiry: '',
+    card_cvv: '',
     notes: '',
     direct_purchase: directPurchase,
   });
@@ -115,7 +120,7 @@ export default function CheckoutIndex({ items, subtotal, tax, shipping, total, d
     <>
       <Head title="Finalizar Compra" />
 
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-background">
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Button
@@ -128,7 +133,7 @@ export default function CheckoutIndex({ items, subtotal, tax, shipping, total, d
           Voltar
         </Button>
 
-        <h1 className="text-3xl font-bold mb-8">Finalizar Compra</h1>
+        <h1 className="text-3xl font-bold mb-8 text-foreground">Finalizar Compra</h1>
 
         <form onSubmit={handleSubmit}>
           <div className="grid lg:grid-cols-3 gap-8">
@@ -179,7 +184,7 @@ export default function CheckoutIndex({ items, subtotal, tax, shipping, total, d
                         disabled={loadingCep}
                         required
                       />
-                      {loadingCep && <p className="text-xs text-gray-500 mt-1">Buscando endereço...</p>}
+                      {loadingCep && <p className="text-xs text-muted-foreground mt-1">Buscando endereço...</p>}
                     </div>
                     <div>
                       <Label>Bairro</Label>
@@ -240,6 +245,98 @@ export default function CheckoutIndex({ items, subtotal, tax, shipping, total, d
                   />
                 </CardContent>
               </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <CreditCard className="h-5 w-5" />
+                    Pagamento (Simulação)
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label>Método de Pagamento</Label>
+                    <select
+                      className="w-full border border-input bg-background rounded-md p-2 text-foreground"
+                      value={data.payment_method}
+                      onChange={(e) => setData('payment_method', e.target.value)}
+                    >
+                      <option value="credit_card">Cartão de Crédito</option>
+                      <option value="debit_card">Cartão de Débito</option>
+                      <option value="pix">PIX</option>
+                      <option value="boleto">Boleto</option>
+                    </select>
+                  </div>
+
+                  {(data.payment_method === 'credit_card' || data.payment_method === 'debit_card') && (
+                    <>
+                      <div>
+                        <Label>Número do Cartão</Label>
+                        <MaskedInput
+                          mask="9999 9999 9999 9999"
+                          value={data.card_number}
+                          onChange={(e) => setData('card_number', e.target.value)}
+                          placeholder="0000 0000 0000 0000"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <Label>Nome no Cartão</Label>
+                        <Input
+                          value={data.card_name}
+                          onChange={(e) => setData('card_name', e.target.value.toUpperCase())}
+                          placeholder="NOME COMPLETO"
+                          required
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <Label>Validade</Label>
+                          <MaskedInput
+                            mask="99/99"
+                            value={data.card_expiry}
+                            onChange={(e) => setData('card_expiry', e.target.value)}
+                            placeholder="MM/AA"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <Label>CVV</Label>
+                          <MaskedInput
+                            mask="999"
+                            value={data.card_cvv}
+                            onChange={(e) => setData('card_cvv', e.target.value)}
+                            placeholder="000"
+                            required
+                          />
+                        </div>
+                      </div>
+                    </>
+                  )}
+
+                  {data.payment_method === 'pix' && (
+                    <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900 rounded-lg p-4">
+                      <p className="text-sm text-blue-800 dark:text-blue-300">
+                        Após finalizar, você receberá um código PIX para pagamento.
+                      </p>
+                    </div>
+                  )}
+
+                  {data.payment_method === 'boleto' && (
+                    <div className="bg-yellow-50 dark:bg-yellow-950/30 border border-yellow-200 dark:border-yellow-900 rounded-lg p-4">
+                      <p className="text-sm text-yellow-800 dark:text-yellow-300">
+                        O boleto será gerado após finalizar o pedido.
+                      </p>
+                    </div>
+                  )}
+
+                  <div className="bg-muted border rounded-lg p-3">
+                    <p className="text-xs text-muted-foreground">
+                      🔒 Esta é uma simulação de pagamento. Nenhum valor real será cobrado.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
 
             <div className="space-y-6">
@@ -254,29 +351,29 @@ export default function CheckoutIndex({ items, subtotal, tax, shipping, total, d
                   {items.map((item, index) => (
                     <div key={index} className="flex justify-between text-sm">
                       <div>
-                        <p className="font-medium">{item.product.name}</p>
-                        <p className="text-gray-500">Qtd: {item.quantity}</p>
+                        <p className="font-medium text-foreground">{item.product.name}</p>
+                        <p className="text-muted-foreground">Qtd: {item.quantity}</p>
                       </div>
-                      <p className="font-semibold">R$ {parseFloat(item.subtotal).toFixed(2)}</p>
+                      <p className="font-semibold text-foreground">R$ {parseFloat(item.subtotal).toFixed(2)}</p>
                     </div>
                   ))}
 
                   <div className="border-t pt-4 space-y-2">
-                    <div className="flex justify-between text-sm">
+                    <div className="flex justify-between text-sm text-foreground">
                       <span>Subtotal</span>
                       <span>R$ {parseFloat(subtotal).toFixed(2)}</span>
                     </div>
-                    <div className="flex justify-between text-sm">
+                    <div className="flex justify-between text-sm text-foreground">
                       <span>Impostos</span>
                       <span>R$ {parseFloat(tax).toFixed(2)}</span>
                     </div>
-                    <div className="flex justify-between text-sm">
+                    <div className="flex justify-between text-sm text-foreground">
                       <span>Frete</span>
                       <span>R$ {parseFloat(shipping).toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between text-lg font-bold border-t pt-2">
-                      <span>Total</span>
-                      <span className="text-green-600">R$ {parseFloat(total).toFixed(2)}</span>
+                      <span className="text-foreground">Total</span>
+                      <span className="text-green-600 dark:text-green-400">R$ {parseFloat(total).toFixed(2)}</span>
                     </div>
                   </div>
                 </CardContent>
@@ -286,20 +383,17 @@ export default function CheckoutIndex({ items, subtotal, tax, shipping, total, d
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <CreditCard className="h-5 w-5" />
-                    Pagamento
+                    Finalizar Compra
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-gray-600 mb-4">
-                    Pagamento será processado na entrega
-                  </p>
                   <Button
                     type="submit"
                     className="w-full cursor-pointer"
                     size="lg"
                     disabled={processing}
                   >
-                    {processing ? 'Processando...' : 'Finalizar Pedido'}
+                    {processing ? 'Processando Pagamento...' : 'Confirmar Pagamento'}
                   </Button>
                 </CardContent>
               </Card>
