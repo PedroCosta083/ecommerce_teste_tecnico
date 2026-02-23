@@ -32,7 +32,7 @@ interface Order {
     name: string;
     email: string;
   };
-  items: OrderItem[];
+  order_items: OrderItem[];
   created_at: string;
   updated_at: string;
 }
@@ -194,7 +194,7 @@ export default function OrdersShow({ order }: Props) {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {order.items.map((item) => (
+              {order.order_items?.map((item) => (
                 <div key={item.id} className="flex justify-between items-center p-4 border rounded-lg">
                   <div className="flex-1">
                     <h4 className="font-medium">{item.product.name}</h4>

@@ -99,23 +99,25 @@ export default function MyOrdersShow({ order, auth }: Props) {
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <MapPin className="h-5 w-5" />
-                  Endereço de Entrega
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p>{order.shipping_address.street}, {order.shipping_address.number}</p>
-                {order.shipping_address.complement && (
-                  <p>{order.shipping_address.complement}</p>
-                )}
-                <p>{order.shipping_address.neighborhood}</p>
-                <p>{order.shipping_address.city} - {order.shipping_address.state}</p>
-                <p>CEP: {order.shipping_address.zip_code}</p>
-              </CardContent>
-            </Card>
+            {order.shipping_address && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <MapPin className="h-5 w-5" />
+                    Endereço de Entrega
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p>{order.shipping_address.street}, {order.shipping_address.number}</p>
+                  {order.shipping_address.complement && (
+                    <p>{order.shipping_address.complement}</p>
+                  )}
+                  <p>{order.shipping_address.neighborhood}</p>
+                  <p>{order.shipping_address.city} - {order.shipping_address.state}</p>
+                  <p>CEP: {order.shipping_address.zip_code}</p>
+                </CardContent>
+              </Card>
+            )}
 
             {order.notes && (
               <Card>
