@@ -18,6 +18,7 @@ class CreateProductRequest extends FormRequest
             'name'        => 'required|string|max:255',
             'slug'        => ['required', 'string', 'max:255', new UniqueSlug('products')],
             'description' => 'nullable|string',
+            'image'       => 'nullable|image|mimes:jpeg,jpg,png,webp|max:2048',
             'price'       => 'required|numeric|min:0',
             'cost_price'  => 'required|numeric|min:0',
             'quantity'    => 'required|integer|min:0',

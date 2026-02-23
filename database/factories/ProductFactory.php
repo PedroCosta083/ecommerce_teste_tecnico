@@ -18,12 +18,13 @@ class ProductFactory extends Factory
     {
         $name = fake()->unique()->words(3, true);
         $price = fake()->randomFloat(2, 10, 2000);
-        $costPrice = $price * fake()->randomFloat(2, 0.4, 0.8); // Cost price 40-80% of selling price
+        $costPrice = $price * fake()->randomFloat(2, 0.4, 0.8);
         
         return [
             'name' => $name,
             'slug' => \Illuminate\Support\Str::slug($name) . '-' . fake()->unique()->numberBetween(1, 9999),
             'description' => fake()->paragraph(),
+            'image' => null, // Imagem será adicionada via upload manual
             'price' => $price,
             'cost_price' => $costPrice,
             'quantity' => fake()->numberBetween(0, 100),

@@ -36,7 +36,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('tags', TagController::class);
     
     Route::resource('roles', RoleController::class)->middleware('permission:roles.view');
-    Route::resource('permissions', PermissionController::class)->only(['index', 'store', 'destroy'])->middleware('permission:roles.view');
+    Route::resource('permissions', PermissionController::class)->only(['index', 'store', 'destroy'])->middleware('permission:permissions.view');
     Route::resource('users', UserRoleController::class)->only(['index'])->middleware('permission:users.view');
     Route::get('users/{user}/edit-roles', [UserRoleController::class, 'edit'])->name('users.edit-roles')->middleware('permission:roles.update');
     Route::put('users/{user}/roles', [UserRoleController::class, 'update'])->name('users.update-roles')->middleware('permission:roles.update');

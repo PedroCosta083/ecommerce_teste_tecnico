@@ -11,6 +11,7 @@ interface Product {
   name: string;
   slug: string;
   description: string;
+  image?: string;
   price: string;
   quantity: number;
   category: { id: number; name: string };
@@ -136,8 +137,18 @@ export default function StorefrontProduct({ product, auth }: Props) {
 
           <div className="grid md:grid-cols-2 gap-8">
             {/* Product Image */}
-            <div className="aspect-square bg-gray-200 rounded-lg flex items-center justify-center">
-              <span className="text-gray-400 text-xl">Imagem do Produto</span>
+            <div className="aspect-square bg-gray-200 rounded-lg overflow-hidden">
+              {product.image ? (
+                <img 
+                  src={product.image} 
+                  alt={product.name} 
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <span className="text-gray-400 text-xl">Sem imagem</span>
+                </div>
+              )}
             </div>
 
             {/* Product Info */}

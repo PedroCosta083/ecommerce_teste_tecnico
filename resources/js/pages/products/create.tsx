@@ -2,6 +2,7 @@ import { Head, Link, useForm } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { CurrencyInput } from '@/components/ui/currency-input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -21,6 +22,7 @@ interface FormData {
   name: string;
   slug: string;
   description: string;
+  image: File | null;
   price: string;
   cost_price: string;
   quantity: string;
@@ -40,6 +42,7 @@ export default function ProductsCreate({ categories, tags }: Props) {
     name: '',
     slug: '',
     description: '',
+    image: null,
     price: '',
     cost_price: '',
     quantity: '',
@@ -131,27 +134,34 @@ export default function ProductsCreate({ categories, tags }: Props) {
                 {errors.description && <p className="text-sm text-red-600">{errors.description}</p>}
               </div>
 
+              <div>
+                <Label htmlFor="image">Imagem do Produto</Label>
+                <Input
+                  id="image"
+                  type="file"
+                  accept="image/jpeg,image/jpg,image/png,image/webp"
+                  onChange={(e) => setData('image', e.target.files?.[0] || null)}
+                />
+                {errors.image && <p className="text-sm text-red-600">{errors.image}</p>}
+              </div>
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="price">Preço de Venda *</Label>
-                  <Input
+                  <CurrencyInput
                     id="price"
-                    type="number"
-                    step="0.01"
                     value={data.price}
-                    onChange={(e) => setData('price', e.target.value)}
+                    onChange={(value) => setData('price', value)}
                   />
                   {errors.price && <p className="text-sm text-red-600">{errors.price}</p>}
                 </div>
                 
                 <div>
                   <Label htmlFor="cost_price">Preço de Custo *</Label>
-                  <Input
+                  <CurrencyInput
                     id="cost_price"
-                    type="number"
-                    step="0.01"
                     value={data.cost_price}
-                    onChange={(e) => setData('cost_price', e.target.value)}
+                    onChange={(value) => setData('cost_price', value)}
                   />
                   {errors.cost_price && <p className="text-sm text-red-600">{errors.cost_price}</p>}
                 </div>

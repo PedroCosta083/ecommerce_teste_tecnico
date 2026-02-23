@@ -9,6 +9,12 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
+/**
+ * @method bool checkPermissionTo(string $permission, string|null $guardName = null)
+ * @method bool hasPermissionTo(string $permission, string|null $guardName = null)
+ * @method bool hasAnyPermission(...$permissions)
+ * @method bool hasAllPermissions(...$permissions)
+ */
 class User extends Authenticatable
 {
     use HasFactory, Notifiable, TwoFactorAuthenticatable, HasRoles, HasApiTokens;

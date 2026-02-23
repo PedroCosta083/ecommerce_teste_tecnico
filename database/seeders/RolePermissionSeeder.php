@@ -10,40 +10,50 @@ class RolePermissionSeeder extends Seeder
 {
     public function run(): void
     {
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+
         // Criar permissions
         $permissions = [
             // Products
-            'view products',
-            'create products',
-            'edit products',
-            'delete products',
+            'products.view',
+            'products.create',
+            'products.update',
+            'products.delete',
             
             // Categories
-            'view categories',
-            'create categories',
-            'edit categories',
-            'delete categories',
+            'categories.view',
+            'categories.create',
+            'categories.update',
+            'categories.delete',
             
             // Tags
-            'view tags',
-            'create tags',
-            'edit tags',
-            'delete tags',
+            'tags.view',
+            'tags.create',
+            'tags.update',
+            'tags.delete',
             
             // Orders
-            'view orders',
-            'edit orders',
-            'delete orders',
+            'orders.view',
+            'orders.create',
+            'orders.update',
+            'orders.delete',
             
             // Users
-            'view users',
-            'create users',
-            'edit users',
-            'delete users',
+            'users.view',
+            'users.create',
+            'users.update',
+            'users.delete',
             
-            // Roles & Permissions
-            'manage roles',
-            'manage permissions',
+            // Roles
+            'roles.view',
+            'roles.create',
+            'roles.update',
+            'roles.delete',
+            
+            // Permissions
+            'permissions.view',
+            'permissions.create',
+            'permissions.delete',
         ];
 
         foreach ($permissions as $permission) {
@@ -59,15 +69,15 @@ class RolePermissionSeeder extends Seeder
         $adminRole->givePermissionTo(Permission::all());
         
         $managerRole->givePermissionTo([
-            'view products', 'create products', 'edit products',
-            'view categories', 'create categories', 'edit categories',
-            'view tags', 'create tags', 'edit tags',
-            'view orders', 'edit orders',
+            'products.view', 'products.create', 'products.update',
+            'categories.view', 'categories.create', 'categories.update',
+            'tags.view', 'tags.create', 'tags.update',
+            'orders.view', 'orders.update',
         ]);
         
         $editorRole->givePermissionTo([
-            'view products', 'create products', 'edit products',
-            'view categories', 'view tags', 'view orders',
+            'products.view', 'products.create', 'products.update',
+            'categories.view', 'tags.view', 'orders.view',
         ]);
     }
 }

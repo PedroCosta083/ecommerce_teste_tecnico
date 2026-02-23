@@ -19,19 +19,24 @@ class StorefrontController extends Controller
 
     public function index(Request $request): Response
     {
-        $filters = ProductFilterDTO::fromRequest($request->all());
+        $filters = ProductFilterDTO::fromRequest(array_merge(
+            $request->all(),
+            ['active' => true] // Apenas produtos ativos na vitrine
+        ));
         $products = $this->productService->getProductsWithFilters($filters);
         
+        // Filtrar produtos com estoque
         $products->getCollection()->load(['category', 'tags']);
+        $filteredProducts = $products->getCollection()->filter(fn($product) => $product->quantity > 0);
         
         return Inertia::render('storefront/index', [
             'products' => [
-                'data' => ProductResource::collection($products->items())->resolve(),
+                'data' => ProductResource::collection($filteredProducts)->resolve(),
                 'meta' => [
                     'current_page' => $products->currentPage(),
                     'last_page' => $products->lastPage(),
                     'per_page' => $products->perPage(),
-                    'total' => $products->total(),
+                    'total' => $filteredProducts->count(),
                 ]
             ],
             'categories' => $this->categoryService->getAllCategories(),

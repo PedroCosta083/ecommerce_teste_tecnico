@@ -10,6 +10,7 @@ use App\Models\Product;
 use App\Repositories\Contracts\ProductRepositoryInterface;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Storage;
 
 class ProductService
 {
@@ -61,6 +62,18 @@ class ProductService
             'active' => $dto->active,
         ];
 
+        if ($dto->image) {
+            $filename = time() . '_' . str_replace(' ', '_', $dto->image->getClientOriginalName());
+            $path = storage_path('app/public/products/' . $filename);
+            
+            if (!file_exists(storage_path('app/public/products'))) {
+                mkdir(storage_path('app/public/products'), 0755, true);
+            }
+            
+            move_uploaded_file($dto->image->getRealPath(), $path);
+            $data['image'] = 'products/' . $filename;
+        }
+
         $product = $this->productRepository->create($data);
 
         if (!empty($dto->tagIds)) {
@@ -93,6 +106,22 @@ class ProductService
             'active' => $dto->active,
         ], fn($value) => $value !== null);
 
+        if ($dto->image) {
+            if ($product->image) {
+                Storage::disk('public')->delete($product->image);
+            }
+            
+            $filename = time() . '_' . str_replace(' ', '_', $dto->image->getClientOriginalName());
+            $path = storage_path('app/public/products/' . $filename);
+            
+            if (!file_exists(storage_path('app/public/products'))) {
+                mkdir(storage_path('app/public/products'), 0755, true);
+            }
+            
+            move_uploaded_file($dto->image->getRealPath(), $path);
+            $data['image'] = 'products/' . $filename;
+        }
+        
         $this->productRepository->update($product, $data);
 
         if ($dto->tagIds !== null) {
@@ -108,6 +137,11 @@ class ProductService
         
         if (!$product) {
             return false;
+        }
+
+        // Deletar imagem ao excluir produto
+        if ($product->image) {
+            Storage::disk('public')->delete($product->image);
         }
 
         return $this->productRepository->delete($product);

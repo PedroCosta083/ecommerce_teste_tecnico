@@ -10,7 +10,7 @@ class TagService
 {
     public function getAllTags(): Collection
     {
-        return Tag::orderBy('name')->get();
+        return Tag::where('active', true)->orderBy('name')->get();
     }
 
     public function getTagById(int $id): ?Tag

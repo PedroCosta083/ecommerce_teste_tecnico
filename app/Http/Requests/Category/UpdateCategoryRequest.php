@@ -24,7 +24,8 @@ class UpdateCategoryRequest extends FormRequest
 
     public function rules(): array
     {
-        $categoryId = $this->route('category');
+        $category = $this->route('category');
+        $categoryId = is_object($category) ? $category->id : $category;
 
         return [
             'name' => 'sometimes|string|max:255',

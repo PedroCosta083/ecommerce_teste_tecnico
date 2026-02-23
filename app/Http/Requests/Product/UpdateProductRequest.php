@@ -14,12 +14,14 @@ class UpdateProductRequest extends FormRequest
 
     public function rules(): array
     {
-        $productId = $this->route('product');
+        $product = $this->route('product');
+        $productId = is_object($product) ? $product->id : $product;
         
         return [
             'name' => 'sometimes|string|max:255',
             'slug' => ['sometimes', 'string', 'max:255', new UniqueSlug('products', $productId)],
             'description' => 'nullable|string',
+            'image'       => 'nullable|image|mimes:jpeg,jpg,png,webp|max:2048',
             'price'       => 'sometimes|numeric|min:0',
             'cost_price'  => 'sometimes|numeric|min:0',
             'quantity'    => 'sometimes|integer|min:0',

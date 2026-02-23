@@ -3,6 +3,7 @@ import { ArrowLeft, CreditCard, MapPin, Package } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { MaskedInput } from '@/components/ui/masked-input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useState } from 'react';
@@ -30,6 +31,7 @@ interface Props {
 
 export default function CheckoutIndex({ items, subtotal, tax, shipping, total, directPurchase }: Props) {
   const [sameAddress, setSameAddress] = useState(true);
+  const [loadingCep, setLoadingCep] = useState(false);
   
   const { data, setData, post, processing } = useForm({
     items: items.map(item => ({
@@ -57,6 +59,42 @@ export default function CheckoutIndex({ items, subtotal, tax, shipping, total, d
     notes: '',
     direct_purchase: directPurchase,
   });
+
+  const fetchAddressByCep = async (cep: string) => {
+    const cleanCep = cep.replace(/\D/g, '');
+    
+    if (cleanCep.length !== 8) return;
+    
+    setLoadingCep(true);
+    try {
+      const response = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`);
+      const addressData = await response.json();
+      
+      if (!addressData.erro) {
+        setData('shipping_address', {
+          ...data.shipping_address,
+          zip_code: cep,
+          street: addressData.logradouro || '',
+          neighborhood: addressData.bairro || '',
+          city: addressData.localidade || '',
+          state: addressData.uf || '',
+        });
+      }
+    } catch (error) {
+      console.error('Erro ao buscar CEP:', error);
+    } finally {
+      setLoadingCep(false);
+    }
+  };
+
+  const handleCepChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newCep = e.target.value;
+    setData('shipping_address', { ...data.shipping_address, zip_code: newCep });
+    
+    if (newCep.replace(/\D/g, '').length === 8) {
+      fetchAddressByCep(newCep);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -132,18 +170,22 @@ export default function CheckoutIndex({ items, subtotal, tax, shipping, total, d
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
+                      <Label>CEP</Label>
+                      <MaskedInput
+                        mask="99999-999"
+                        value={data.shipping_address.zip_code}
+                        onChange={handleCepChange}
+                        placeholder="00000-000"
+                        disabled={loadingCep}
+                        required
+                      />
+                      {loadingCep && <p className="text-xs text-gray-500 mt-1">Buscando endereço...</p>}
+                    </div>
+                    <div>
                       <Label>Bairro</Label>
                       <Input
                         value={data.shipping_address.neighborhood}
                         onChange={(e) => setData('shipping_address', { ...data.shipping_address, neighborhood: e.target.value })}
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Label>CEP</Label>
-                      <Input
-                        value={data.shipping_address.zip_code}
-                        onChange={(e) => setData('shipping_address', { ...data.shipping_address, zip_code: e.target.value })}
                         required
                       />
                     </div>
@@ -162,8 +204,9 @@ export default function CheckoutIndex({ items, subtotal, tax, shipping, total, d
                       <Label>Estado</Label>
                       <Input
                         value={data.shipping_address.state}
-                        onChange={(e) => setData('shipping_address', { ...data.shipping_address, state: e.target.value })}
+                        onChange={(e) => setData('shipping_address', { ...data.shipping_address, state: e.target.value.toUpperCase() })}
                         maxLength={2}
+                        placeholder="SP"
                         required
                       />
                     </div>

@@ -2,6 +2,7 @@ import { Head, Link, useForm } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { CurrencyInput } from '@/components/ui/currency-input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -22,6 +23,7 @@ interface Product {
   name: string;
   slug: string;
   description?: string;
+  image?: string;
   price: number;
   cost_price: number;
   quantity: number;
@@ -41,6 +43,7 @@ interface FormData {
   name: string;
   slug: string;
   description: string;
+  image: File | null;
   price: string;
   cost_price: string;
   quantity: string;
@@ -48,6 +51,7 @@ interface FormData {
   category_id: string;
   active: boolean;
   tag_ids: number[];
+  _method?: string;
 }
 
 interface Props {
@@ -57,10 +61,11 @@ interface Props {
 }
 
 export default function ProductsEdit({ product, categories, tags }: Props) {
-  const { data, setData, put, processing, errors } = useForm<FormData>({
+  const { data, setData, post, processing, errors } = useForm<FormData>({
     name: product.name || '',
     slug: product.slug || '',
     description: product.description || '',
+    image: null,
     price: product.price?.toString() || '',
     cost_price: product.cost_price?.toString() || '',
     quantity: product.quantity?.toString() || '',
@@ -68,11 +73,15 @@ export default function ProductsEdit({ product, categories, tags }: Props) {
     category_id: product.category?.id?.toString() || '',
     active: product.active ?? true,
     tag_ids: product.tags?.map(tag => tag.id) || [],
+    _method: 'PUT',
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    put(`/products/${product.id}`);
+    post(`/products/${product.id}`, {
+      forceFormData: true,
+      preserveScroll: true,
+    });
   };
 
   const generateSlug = (name: string) => {
@@ -157,27 +166,39 @@ export default function ProductsEdit({ product, categories, tags }: Props) {
                 {errors.description && <p className="text-sm text-red-600">{errors.description}</p>}
               </div>
 
+              <div>
+                <Label htmlFor="image">Imagem do Produto</Label>
+                {product.image && (
+                  <div className="mb-2">
+                    <img src={product.image} alt={product.name} className="w-32 h-32 object-cover rounded" />
+                  </div>
+                )}
+                <Input
+                  id="image"
+                  type="file"
+                  accept="image/jpeg,image/jpg,image/png,image/webp"
+                  onChange={(e) => setData('image', e.target.files?.[0] || null)}
+                />
+                {errors.image && <p className="text-sm text-red-600">{errors.image}</p>}
+              </div>
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="price">Preço de Venda *</Label>
-                  <Input
+                  <CurrencyInput
                     id="price"
-                    type="number"
-                    step="0.01"
                     value={data.price}
-                    onChange={(e) => setData('price', e.target.value)}
+                    onChange={(value) => setData('price', value)}
                   />
                   {errors.price && <p className="text-sm text-red-600">{errors.price}</p>}
                 </div>
                 
                 <div>
                   <Label htmlFor="cost_price">Preço de Custo *</Label>
-                  <Input
+                  <CurrencyInput
                     id="cost_price"
-                    type="number"
-                    step="0.01"
                     value={data.cost_price}
-                    onChange={(e) => setData('cost_price', e.target.value)}
+                    onChange={(value) => setData('cost_price', value)}
                   />
                   {errors.cost_price && <p className="text-sm text-red-600">{errors.cost_price}</p>}
                 </div>

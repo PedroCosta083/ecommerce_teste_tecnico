@@ -58,7 +58,14 @@ class ProductController extends Controller
 
     public function store(CreateProductRequest $request)
     {
-        $dto = CreateProductDTO::fromRequest($request->validated());
+        $validated = $request->validated();
+
+        // Adicionar arquivo manualmente se existir
+        if ($request->hasFile('image')) {
+            $validated['image'] = $request->file('image');
+        }
+        
+        $dto = CreateProductDTO::fromRequest($validated);
         $this->productService->createProduct($dto);
 
         return redirect()->route('products.index')
@@ -83,7 +90,14 @@ class ProductController extends Controller
 
     public function update(UpdateProductRequest $request, Product $product)
     {
-        $dto = UpdateProductDTO::fromRequest($request->validated());
+        $validated = $request->validated();
+        
+        // Adicionar arquivo manualmente se existir
+        if ($request->hasFile('image')) {
+            $validated['image'] = $request->file('image');
+        }
+        
+        $dto = UpdateProductDTO::fromRequest($validated);
         $this->productService->updateProduct($product->id, $dto);
 
         return redirect()->route('products.index')
