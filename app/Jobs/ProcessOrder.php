@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Events\ProductStockChanged;
 use App\Models\Order;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -28,14 +29,15 @@ class ProcessOrder implements ShouldQueue
                     throw new \Exception("Insufficient stock for product: {$product->name}");
                 }
 
-                // Dispatch UpdateStock job para cada item
-                UpdateStock::dispatch(
-                    productId: $product->id,
-                    type: 'venda',
-                    quantity: $item->quantity,
-                    reason: 'Venda - Pedido #' . $this->order->id,
-                    referenceType: Order::class,
-                    referenceId: $this->order->id
+                $oldQuantity = $product->quantity;
+                $product->decrement('quantity', $item->quantity);
+                $product->refresh();
+                
+                ProductStockChanged::dispatch(
+                    $product,
+                    $oldQuantity,
+                    $product->quantity,
+                    'Venda - Pedido #' . $this->order->id
                 );
             }
 

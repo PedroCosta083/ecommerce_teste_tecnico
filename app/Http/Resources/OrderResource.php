@@ -16,8 +16,12 @@ class OrderResource extends JsonResource
             'tax' => (float) $this->tax,
             'shipping_cost' => (float) $this->shipping_cost,
             'total' => (float) $this->total,
-            'shipping_address' => $this->shipping_address,
-            'billing_address' => $this->billing_address,
+            'shipping_address' => is_string($this->shipping_address) 
+                ? json_decode($this->shipping_address, true) 
+                : $this->shipping_address,
+            'billing_address' => is_string($this->billing_address) 
+                ? json_decode($this->billing_address, true) 
+                : $this->billing_address,
             'notes' => $this->notes,
             'user' => $this->whenLoaded('user', function () {
                 return [
