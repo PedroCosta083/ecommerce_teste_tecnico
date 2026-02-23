@@ -4,13 +4,20 @@ namespace App\Providers;
 
 use App\Events\OrderCreated;
 use App\Events\ProductCreated;
+use App\Events\ProductStockChanged;
 use App\Events\StockLow;
+use App\Listeners\CreateLowStockNotification;
 use App\Listeners\LogLowStock;
 use App\Listeners\LogProductCreation;
 use App\Listeners\NotifyLowStock;
 use App\Listeners\ProcessOrderCreated;
+use App\Listeners\RecordStockMovement;
 use App\Listeners\SendOrderCreatedNotification;
 use App\Listeners\SendProductCreatedNotification;
+use App\Models\Order;
+use App\Models\Product;
+use App\Observers\OrderObserver;
+use App\Observers\ProductObserver;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
@@ -35,6 +42,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Product::observe(ProductObserver::class);
+        Order::observe(OrderObserver::class);
+
         // Rate Limiters
         RateLimiter::for('api', function (Request $request) {
             return Limit::perMinute(100)->by($request->user()?->id ?: $request->ip())
@@ -65,5 +75,8 @@ class AppServiceProvider extends ServiceProvider
 
         Event::listen(StockLow::class, NotifyLowStock::class);
         Event::listen(StockLow::class, LogLowStock::class);
+        Event::listen(StockLow::class, CreateLowStockNotification::class);
+        
+        Event::listen(ProductStockChanged::class, RecordStockMovement::class);
     }
 }
