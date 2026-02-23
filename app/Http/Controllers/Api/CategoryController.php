@@ -19,7 +19,7 @@ class CategoryController extends ApiController
 
     /**
      * @OA\Get(
-     *     path="/categories",
+     *     path="/api/v1/categories",
      *     tags={"Categories"},
      *     summary="Lista todas as categorias",
      *     description="Retorna lista completa de categorias com estrutura hierárquica (parent/children)",
@@ -44,7 +44,7 @@ class CategoryController extends ApiController
 
     /**
      * @OA\Get(
-     *     path="/categories/{id}",
+     *     path="/api/v1/categories/{id}",
      *     tags={"Categories"},
      *     summary="Obtém detalhes de uma categoria",
      *     description="Retorna informações de uma categoria específica incluindo subcategorias",
@@ -77,7 +77,7 @@ class CategoryController extends ApiController
 
     /**
      * @OA\Post(
-     *     path="/categories",
+     *     path="/api/v1/categories",
      *     tags={"Categories"},
      *     summary="Cria nova categoria",
      *     description="Cadastra uma nova categoria com suporte a hierarquia (parent_id)",
@@ -116,7 +116,7 @@ class CategoryController extends ApiController
 
     /**
      * @OA\Put(
-     *     path="/categories/{id}",
+     *     path="/api/v1/categories/{id}",
      *     tags={"Categories"},
      *     summary="Atualiza categoria existente",
      *     description="Atualiza dados de uma categoria. Todos os campos são opcionais",
@@ -166,7 +166,7 @@ class CategoryController extends ApiController
 
     /**
      * @OA\Delete(
-     *     path="/categories/{id}",
+     *     path="/api/v1/categories/{id}",
      *     tags={"Categories"},
      *     summary="Remove categoria",
      *     description="Exclui permanentemente uma categoria do sistema",
@@ -199,7 +199,7 @@ class CategoryController extends ApiController
 
     /**
      * @OA\Get(
-     *     path="/categories/{id}/products",
+     *     path="/api/v1/categories/{id}/products",
      *     tags={"Categories"},
      *     summary="Lista produtos de uma categoria",
      *     description="Retorna lista paginada de produtos pertencentes a uma categoria específica",

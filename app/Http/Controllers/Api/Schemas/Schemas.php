@@ -60,6 +60,19 @@ namespace App\Http\Controllers\Api\Schemas;
  * )
  * 
  * @OA\Schema(
+ *     schema="Tag",
+ *     type="object",
+ *     title="Tag",
+ *     description="Modelo de tag para classificação de produtos",
+ *     required={"id", "name", "slug"},
+ *     @OA\Property(property="id", type="integer", example=1, description="ID único da tag"),
+ *     @OA\Property(property="name", type="string", example="Promoção", description="Nome da tag"),
+ *     @OA\Property(property="slug", type="string", example="promocao", description="Slug único para URL"),
+ *     @OA\Property(property="created_at", type="string", format="date-time", example="2024-01-01T08:00:00Z"),
+ *     @OA\Property(property="updated_at", type="string", format="date-time", example="2024-01-15T14:20:00Z")
+ * )
+ * 
+ * @OA\Schema(
  *     schema="Cart",
  *     type="object",
  *     title="Cart",

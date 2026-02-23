@@ -12,7 +12,7 @@ class AuthController extends ApiController
 {
     /**
      * @OA\Post(
-     *     path="/auth/login",
+     *     path="/api/v1/auth/login",
      *     tags={"Authentication"},
      *     summary="Autentica usuário e retorna token",
      *     description="Realiza login com email e senha, retornando token Sanctum para autenticação nas demais rotas",
@@ -75,7 +75,7 @@ class AuthController extends ApiController
 
     /**
      * @OA\Post(
-     *     path="/auth/logout",
+     *     path="/api/v1/auth/logout",
      *     tags={"Authentication"},
      *     summary="Realiza logout do usuário",
      *     description="Revoga o token de acesso atual do usuário autenticado",
@@ -101,7 +101,7 @@ class AuthController extends ApiController
 
     /**
      * @OA\Get(
-     *     path="/auth/me",
+     *     path="/api/v1/auth/me",
      *     tags={"Authentication"},
      *     summary="Retorna dados do usuário autenticado",
      *     description="Obtém informações do perfil do usuário atualmente autenticado",

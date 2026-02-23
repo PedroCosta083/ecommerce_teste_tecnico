@@ -20,7 +20,7 @@ class OrderController extends ApiController
 
     /**
      * @OA\Get(
-     *     path="/orders",
+     *     path="/api/v1/orders",
      *     tags={"Orders"},
      *     summary="Lista pedidos com filtros",
      *     description="Retorna lista paginada de pedidos com filtros por status, usuário e período",
@@ -103,7 +103,7 @@ class OrderController extends ApiController
 
     /**
      * @OA\Get(
-     *     path="/orders/{id}",
+     *     path="/api/v1/orders/{id}",
      *     tags={"Orders"},
      *     summary="Obtém detalhes de um pedido",
      *     description="Retorna informações completas de um pedido incluindo itens, totais e endereços",
@@ -141,7 +141,7 @@ class OrderController extends ApiController
 
     /**
      * @OA\Post(
-     *     path="/orders",
+     *     path="/api/v1/orders",
      *     tags={"Orders"},
      *     summary="Cria novo pedido",
      *     description="Cria um pedido validando estoque, calculando totais e disparando eventos (OrderCreated). Inicia processamento assíncrono via Jobs",
@@ -193,7 +193,7 @@ class OrderController extends ApiController
 
     /**
      * @OA\Put(
-     *     path="/orders/{id}",
+     *     path="/api/v1/orders/{id}",
      *     tags={"Orders"},
      *     summary="Atualiza pedido existente",
      *     description="Atualiza dados de um pedido. Campos opcionais",
@@ -244,7 +244,7 @@ class OrderController extends ApiController
 
     /**
      * @OA\Patch(
-     *     path="/orders/{id}/status",
+     *     path="/api/v1/orders/{id}/status",
      *     tags={"Orders"},
      *     summary="Atualiza status do pedido",
      *     description="Endpoint específico para atualizar apenas o status de um pedido",
@@ -300,7 +300,7 @@ class OrderController extends ApiController
 
     /**
      * @OA\Delete(
-     *     path="/orders/{id}",
+     *     path="/api/v1/orders/{id}",
      *     tags={"Orders"},
      *     summary="Remove pedido",
      *     description="Exclui permanentemente um pedido do sistema",

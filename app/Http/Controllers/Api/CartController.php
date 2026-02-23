@@ -19,7 +19,7 @@ class CartController extends ApiController
 
     /**
      * @OA\Get(
-     *     path="/cart",
+     *     path="/api/v1/cart",
      *     tags={"Cart"},
      *     summary="Obtém carrinho do usuário",
      *     description="Retorna o carrinho completo com itens, produtos e totais. Suporta busca por user_id ou session_id",
@@ -69,7 +69,7 @@ class CartController extends ApiController
 
     /**
      * @OA\Post(
-     *     path="/cart/items",
+     *     path="/api/v1/cart/items",
      *     tags={"Cart"},
      *     summary="Adiciona item ao carrinho",
      *     description="Adiciona um produto ao carrinho com quantidade especificada. Valida estoque disponível",
@@ -116,7 +116,7 @@ class CartController extends ApiController
 
     /**
      * @OA\Put(
-     *     path="/cart/items/{cartItemId}",
+     *     path="/api/v1/cart/items/{cartItemId}",
      *     tags={"Cart"},
      *     summary="Atualiza quantidade de item no carrinho",
      *     description="Modifica a quantidade de um item específico do carrinho. Valida estoque",
@@ -168,7 +168,7 @@ class CartController extends ApiController
 
     /**
      * @OA\Delete(
-     *     path="/cart/items/{cartItemId}",
+     *     path="/api/v1/cart/items/{cartItemId}",
      *     tags={"Cart"},
      *     summary="Remove item do carrinho",
      *     description="Exclui um item específico do carrinho",
@@ -206,7 +206,7 @@ class CartController extends ApiController
 
     /**
      * @OA\Delete(
-     *     path="/cart/{cartId}",
+     *     path="/api/v1/cart/{cartId}",
      *     tags={"Cart"},
      *     summary="Limpa todo o carrinho",
      *     description="Remove todos os itens do carrinho especificado",

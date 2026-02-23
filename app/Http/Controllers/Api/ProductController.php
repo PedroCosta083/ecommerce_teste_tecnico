@@ -19,7 +19,7 @@ class ProductController extends ApiController
 
     /**
      * @OA\Get(
-     *     path="/products",
+     *     path="/api/v1/products",
      *     tags={"Products"},
      *     summary="Lista produtos com filtros e paginação",
      *     description="Retorna lista paginada de produtos com opções de busca por termo, categoria e ordenação",
@@ -107,7 +107,7 @@ class ProductController extends ApiController
 
     /**
      * @OA\Get(
-     *     path="/products/{id}",
+     *     path="/api/v1/products/{id}",
      *     tags={"Products"},
      *     summary="Obtém detalhes de um produto",
      *     description="Retorna informações completas de um produto específico incluindo categoria e estoque",
@@ -140,7 +140,7 @@ class ProductController extends ApiController
 
     /**
      * @OA\Post(
-     *     path="/products",
+     *     path="/api/v1/products",
      *     tags={"Products"},
      *     summary="Cria novo produto",
      *     description="Cadastra um novo produto no sistema com validação completa e dispara evento ProductCreated",
@@ -184,7 +184,7 @@ class ProductController extends ApiController
 
     /**
      * @OA\Put(
-     *     path="/products/{id}",
+     *     path="/api/v1/products/{id}",
      *     tags={"Products"},
      *     summary="Atualiza produto existente",
      *     description="Atualiza dados de um produto. Todos os campos são opcionais",
@@ -235,7 +235,7 @@ class ProductController extends ApiController
 
     /**
      * @OA\Delete(
-     *     path="/products/{id}",
+     *     path="/api/v1/products/{id}",
      *     tags={"Products"},
      *     summary="Remove produto",
      *     description="Exclui permanentemente um produto do sistema",
