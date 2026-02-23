@@ -12,7 +12,7 @@ import {
 import { dashboard } from '@/routes';
 import { type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { LayoutGrid, Package, ShoppingCart, FolderTree, Tag, Users, Shield, Key, PackageCheck } from 'lucide-react';
+import { LayoutGrid, Package, ShoppingCart, FolderTree, Tag, Users, Shield, Key, PackageCheck, FileText, Store, Bell } from 'lucide-react';
 import AppLogo from './app-logo';
 
 interface AuthUser {
@@ -67,6 +67,18 @@ const allNavItems: NavItem[] = [
         permission: 'orders.view',
     },
     {
+        title: 'Relatórios',
+        href: '/reports',
+        icon: FileText,
+        permission: 'products.view',
+    },
+    {
+        title: 'Notificações',
+        href: '/notifications',
+        icon: Bell,
+        permission: 'products.view',
+    },
+    {
         title: 'Usuários',
         href: '/users',
         icon: Users,
@@ -98,23 +110,30 @@ export function AppSidebar() {
     const mainNavItems = allNavItems.filter(item => hasPermission(item.permission || null));
 
     return (
-        <Sidebar collapsible="icon" variant="inset">
-            <SidebarHeader>
+        <Sidebar collapsible="icon" variant="inset" className="border-r-0">
+            <SidebarHeader className="border-b bg-gradient-to-r from-primary/5 to-primary/10">
                 <SidebarMenu>
                     <SidebarMenuItem>
-                        <SidebarMenuButton size="lg" asChild>
-                            <Link href={dashboard()} prefetch>
+                        <SidebarMenuButton size="lg" asChild className="hover:bg-primary/10">
+                            <Link href={dashboard()} prefetch className="flex items-center gap-3">
+                                <div className="flex aspect-square size-10 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+                                    <Store className="size-5" />
+                                </div>
+                                <div className="flex flex-col gap-0.5 leading-none">
+                                    <span className="font-bold text-lg bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">Loja</span>
+                                    <span className="text-xs text-muted-foreground">E-commerce</span>
+                                </div>
                             </Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                 </SidebarMenu>
             </SidebarHeader>
 
-            <SidebarContent>
+            <SidebarContent className="bg-gradient-to-b from-background to-muted/20">
                 <NavMain items={mainNavItems} />
             </SidebarContent>
 
-            <SidebarFooter>
+            <SidebarFooter className="border-t bg-gradient-to-r from-primary/5 to-primary/10">
                 <NavUser />
             </SidebarFooter>
         </Sidebar>
