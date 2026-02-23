@@ -35,6 +35,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('categories', CategoryController::class);
     Route::resource('tags', TagController::class);
     
+    Route::prefix('reports')->name('reports.')->middleware('permission:products.view')->group(function () {
+        Route::get('/', [App\Http\Controllers\Web\ReportController::class, 'index'])->name('index');
+        Route::get('/low-stock', [App\Http\Controllers\Web\ReportController::class, 'lowStock'])->name('low-stock');
+        Route::get('/stock-movements', [App\Http\Controllers\Web\ReportController::class, 'stockMovements'])->name('stock-movements');
+        Route::get('/revenue', [App\Http\Controllers\Web\ReportController::class, 'revenue'])->name('revenue');
+    });
+    
+    Route::prefix('notifications')->name('notifications.')->middleware('permission:products.view')->group(function () {
+        Route::get('/', [App\Http\Controllers\Web\NotificationController::class, 'index'])->name('index');
+        Route::post('/{id}/read', [App\Http\Controllers\Web\NotificationController::class, 'markAsRead'])->name('mark-read');
+        Route::post('/read-all', [App\Http\Controllers\Web\NotificationController::class, 'markAllAsRead'])->name('mark-all-read');
+        Route::get('/unread-count', [App\Http\Controllers\Web\NotificationController::class, 'getUnreadCount'])->name('unread-count');
+    });
+    
     Route::resource('roles', RoleController::class)->middleware('permission:roles.view');
     Route::resource('permissions', PermissionController::class)->only(['index', 'store', 'destroy'])->middleware('permission:permissions.view');
     Route::resource('users', UserRoleController::class)->only(['index'])->middleware('permission:users.view');

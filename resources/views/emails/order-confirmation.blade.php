@@ -3,57 +3,133 @@
 <head>
     <meta charset="utf-8">
     <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-        .header { background: #4F46E5; color: white; padding: 20px; text-align: center; }
-        .content { padding: 20px; background: #f9f9f9; }
-        .order-details { background: white; padding: 15px; margin: 20px 0; border-radius: 5px; }
-        .item { padding: 10px 0; border-bottom: 1px solid #eee; }
-        .total { font-size: 18px; font-weight: bold; margin-top: 20px; }
-        .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f4f4f4; }
+        .container { max-width: 600px; margin: 20px auto; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .header { background: linear-gradient(135deg, #46685b 0%, #5a8270 100%); color: white; padding: 30px 20px; text-align: center; }
+        .header h1 { margin: 0; font-size: 28px; font-weight: 600; }
+        .content { padding: 30px; }
+        .greeting { font-size: 18px; color: #46685b; margin-bottom: 15px; }
+        .order-details { background: #f9fafb; padding: 20px; margin: 25px 0; border-radius: 8px; border-left: 4px solid #46685b; }
+        .order-details h3 { color: #46685b; margin-top: 0; font-size: 20px; }
+        .info-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #e5e7eb; }
+        .info-label { font-weight: 600; color: #6b7280; }
+        .info-value { color: #111827; }
+        .items-section { margin: 20px 0; }
+        .items-section h4 { color: #46685b; margin-bottom: 15px; font-size: 16px; }
+        .item { padding: 15px; background: white; margin-bottom: 10px; border-radius: 6px; border: 1px solid #e5e7eb; }
+        .item-name { font-weight: 600; color: #111827; font-size: 15px; margin-bottom: 5px; }
+        .item-details { color: #6b7280; font-size: 14px; }
+        .totals { margin-top: 25px; padding-top: 15px; border-top: 2px solid #e5e7eb; }
+        .total-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 15px; }
+        .total-final { font-size: 20px; font-weight: bold; color: #46685b; padding-top: 10px; border-top: 2px solid #46685b; margin-top: 10px; }
+        .address-section { background: white; padding: 15px; border-radius: 6px; border: 1px solid #e5e7eb; margin-top: 15px; }
+        .address-section h4 { color: #46685b; margin-top: 0; margin-bottom: 10px; font-size: 16px; }
+        .address-text { color: #374151; line-height: 1.8; }
+        .footer-note { background: #fef3c7; padding: 15px; border-radius: 6px; margin-top: 20px; border-left: 4px solid #f59e0b; }
+        .footer { text-align: center; padding: 20px; background: #f9fafb; color: #6b7280; font-size: 13px; }
+        .status-badge { display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 13px; font-weight: 600; }
+        .status-processing { background: #dbeafe; color: #1e40af; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>Order Confirmation</h1>
+            <h1>✓ Confirmação de Pedido</h1>
         </div>
         
         <div class="content">
-            <p>Hello {{ $order->user->name }},</p>
-            <p>Thank you for your order! Your order #{{ $order->id }} has been received and is being processed.</p>
+            <p class="greeting">Olá, {{ $order->user->name }}!</p>
+            <p>Obrigado por seu pedido! Seu pedido <strong>#{{ $order->id }}</strong> foi recebido e está sendo processado.</p>
             
             <div class="order-details">
-                <h3>Order Details</h3>
-                <p><strong>Order ID:</strong> #{{ $order->id }}</p>
-                <p><strong>Status:</strong> {{ ucfirst($order->status) }}</p>
-                <p><strong>Date:</strong> {{ $order->created_at->format('M d, Y H:i') }}</p>
+                <h3>Detalhes do Pedido</h3>
                 
-                <h4>Items:</h4>
-                @foreach($items as $item)
-                <div class="item">
-                    <strong>{{ $item->product->name }}</strong><br>
-                    Quantity: {{ $item->quantity }} × ${{ number_format($item->unit_price, 2) }}
-                    = ${{ number_format($item->total_price, 2) }}
+                <div class="info-row">
+                    <span class="info-label">Número do Pedido:</span>
+                    <span class="info-value">#{{ $order->id }}</span>
                 </div>
-                @endforeach
-                
-                <div style="margin-top: 20px;">
-                    <p>Subtotal: ${{ number_format($order->subtotal, 2) }}</p>
-                    <p>Tax: ${{ number_format($order->tax, 2) }}</p>
-                    <p>Shipping: ${{ number_format($order->shipping_cost, 2) }}</p>
-                    <p class="total">Total: ${{ number_format($order->total, 2) }}</p>
+                <div class="info-row">
+                    <span class="info-label">Status:</span>
+                    <span class="info-value">
+                        <span class="status-badge status-processing">
+                            @if($order->status === 'pending') Pendente
+                            @elseif($order->status === 'processing') Processando
+                            @elseif($order->status === 'shipped') Enviado
+                            @elseif($order->status === 'delivered') Entregue
+                            @else {{ ucfirst($order->status) }}
+                            @endif
+                        </span>
+                    </span>
+                </div>
+                <div class="info-row" style="border-bottom: none;">
+                    <span class="info-label">Data:</span>
+                    <span class="info-value">{{ $order->created_at->format('d/m/Y H:i') }}</span>
                 </div>
                 
-                <h4>Shipping Address:</h4>
-                <p>{{ $order->shipping_address }}</p>
+                <div class="items-section">
+                    <h4>Itens do Pedido:</h4>
+                    @foreach($items as $item)
+                    <div class="item">
+                        <div class="item-name">{{ $item->product->name }}</div>
+                        <div class="item-details">
+                            Quantidade: {{ $item->quantity }} × R$ {{ number_format($item->unit_price, 2, ',', '.') }}
+                            = <strong>R$ {{ number_format($item->total_price, 2, ',', '.') }}</strong>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+                
+                <div class="totals">
+                    <div class="total-row">
+                        <span>Subtotal:</span>
+                        <span>R$ {{ number_format($order->subtotal, 2, ',', '.') }}</span>
+                    </div>
+                    <div class="total-row">
+                        <span>Taxa:</span>
+                        <span>R$ {{ number_format($order->tax, 2, ',', '.') }}</span>
+                    </div>
+                    <div class="total-row">
+                        <span>Frete:</span>
+                        <span>R$ {{ number_format($order->shipping_cost, 2, ',', '.') }}</span>
+                    </div>
+                    <div class="total-row total-final">
+                        <span>Total:</span>
+                        <span>R$ {{ number_format($order->total, 2, ',', '.') }}</span>
+                    </div>
+                </div>
+                
+                <div class="address-section">
+                    <h4>📍 Endereço de Entrega:</h4>
+                    <div class="address-text">
+                        @php
+                            $address = is_string($order->shipping_address) 
+                                ? json_decode($order->shipping_address, true) 
+                                : $order->shipping_address;
+                        @endphp
+                        @if(is_array($address))
+                            {{ $address['street'] ?? '' }}{{ isset($address['number']) ? ', ' . $address['number'] : '' }}<br>
+                            @if(!empty($address['complement']))
+                                {{ $address['complement'] }}<br>
+                            @endif
+                            {{ $address['neighborhood'] ?? '' }}<br>
+                            {{ $address['city'] ?? '' }} - {{ $address['state'] ?? '' }}<br>
+                            CEP: {{ $address['zip_code'] ?? '' }}
+                        @else
+                            {{ $address }}
+                        @endif
+                    </div>
+                </div>
             </div>
             
-            <p>We'll send you another email when your order ships.</p>
+            <div class="footer-note">
+                <strong>📦 Próximos passos:</strong><br>
+                Enviaremos outro e-mail quando seu pedido for enviado com o código de rastreamento.
+            </div>
         </div>
         
         <div class="footer">
-            <p>© {{ date('Y') }} E-commerce. All rights reserved.</p>
+            <p>© {{ date('Y') }} E-commerce Store. Todos os direitos reservados.</p>
+            <p>Este é um e-mail automático, por favor não responda.</p>
         </div>
     </div>
 </body>
