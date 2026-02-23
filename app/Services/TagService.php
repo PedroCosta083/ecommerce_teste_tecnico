@@ -10,6 +10,11 @@ class TagService
 {
     public function getAllTags(): Collection
     {
+        return Tag::orderBy('name')->get();
+    }
+
+    public function getActiveTags(): Collection
+    {
         return Tag::where('active', true)->orderBy('name')->get();
     }
 

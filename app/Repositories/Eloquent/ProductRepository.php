@@ -51,7 +51,7 @@ class ProductRepository implements ProductRepositoryInterface
         $query = Product::with(['category', 'tags']);
 
         if ($filters->search) {
-            $query->where('name', 'like', '%' . $filters->search . '%');
+            $query->where('name', 'ilike', '%' . $filters->search . '%');
         }
 
         if ($filters->categoryId) {

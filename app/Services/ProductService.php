@@ -6,6 +6,7 @@ use App\DTOs\Product\CreateProductDTO;
 use App\DTOs\Product\UpdateProductDTO;
 use App\DTOs\Product\ProductFilterDTO;
 use App\Events\ProductCreated;
+use App\Events\ProductStockChanged;
 use App\Models\Product;
 use App\Repositories\Contracts\ProductRepositoryInterface;
 use Illuminate\Database\Eloquent\Collection;
@@ -94,6 +95,8 @@ class ProductService
             return null;
         }
 
+        $oldQuantity = $product->quantity;
+
         $data = array_filter([
             'name' => $dto->name,
             'slug' => $dto->slug,
@@ -126,6 +129,12 @@ class ProductService
 
         if ($dto->tagIds !== null) {
             $product->tags()->sync($dto->tagIds);
+        }
+        
+        // Disparar evento se quantidade mudou
+        if ($dto->quantity !== null && $oldQuantity !== $dto->quantity) {
+            $product->refresh();
+            ProductStockChanged::dispatch($product, $oldQuantity, $dto->quantity, 'Atualização manual');
         }
 
         return $product->fresh();
