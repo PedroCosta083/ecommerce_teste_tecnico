@@ -52,7 +52,7 @@ class ProductController extends Controller
     {
         return Inertia::render('products/create', [
             'categories' => $this->categoryService->getAllCategories(),
-            'tags' => $this->tagService->getAllTags(),
+            'tags' => $this->tagService->getActiveTags(),
         ]);
     }
 
@@ -84,7 +84,7 @@ class ProductController extends Controller
         return Inertia::render('products/edit', [
             'product' => (new ProductResource($product->load(['category', 'tags'])))->resolve(),
             'categories' => $this->categoryService->getAllCategories(),
-            'tags' => $this->tagService->getAllTags(),
+            'tags' => $this->tagService->getActiveTags(),
         ]);
     }
 

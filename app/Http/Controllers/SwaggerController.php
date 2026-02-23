@@ -53,6 +53,11 @@ namespace App\Http\Controllers;
  * )
  * 
  * @OA\Tag(
+ *     name="Tags",
+ *     description="Gerenciamento de tags para classificação de produtos"
+ * )
+ * 
+ * @OA\Tag(
  *     name="Cart",
  *     description="Gerenciamento do carrinho de compras (sessão e usuário autenticado)"
  * )
@@ -60,6 +65,16 @@ namespace App\Http\Controllers;
  * @OA\Tag(
  *     name="Orders",
  *     description="Gestão completa de pedidos com rastreamento de status e histórico"
+ * )
+ * 
+ * @OA\Tag(
+ *     name="Stock",
+ *     description="Controle de estoque com movimentações, entradas, saídas e relatórios"
+ * )
+ * 
+ * @OA\Tag(
+ *     name="Dashboard",
+ *     description="Métricas e estatísticas gerais do sistema"
  * )
  */
 class SwaggerController extends Controller

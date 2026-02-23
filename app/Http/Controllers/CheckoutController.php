@@ -122,26 +122,11 @@ class CheckoutController extends Controller
             'cart_item_ids' => 'nullable|array',
         ]);
 
-        // Converter arrays de endereço para strings
-        $shippingAddress = implode(', ', array_filter([
-            $validated['shipping_address']['street'] ?? '',
-            $validated['shipping_address']['city'] ?? '',
-            $validated['shipping_address']['state'] ?? '',
-            $validated['shipping_address']['zip'] ?? '',
-        ]));
-
-        $billingAddress = implode(', ', array_filter([
-            $validated['billing_address']['street'] ?? '',
-            $validated['billing_address']['city'] ?? '',
-            $validated['billing_address']['state'] ?? '',
-            $validated['billing_address']['zip'] ?? '',
-        ]));
-
         $dto = new CreateOrderDTO(
             userId: auth()->id(),
             items: $validated['items'],
-            shippingAddress: $shippingAddress,
-            billingAddress: $billingAddress,
+            shippingAddress: json_encode($validated['shipping_address']),
+            billingAddress: json_encode($validated['billing_address']),
             notes: $request->input('notes')
         );
 
