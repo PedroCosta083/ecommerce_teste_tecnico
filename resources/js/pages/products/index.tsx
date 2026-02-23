@@ -1,10 +1,12 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import AppLayout from '@/layouts/app-layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Trash2, Edit, Eye, Plus, Search, Package } from 'lucide-react';
 
 interface Product {
@@ -38,16 +40,39 @@ interface Props {
   };
   filters: {
     search?: string;
+    category_id?: number;
   };
+  categories: Array<{
+    id: number;
+    name: string;
+  }>;
 }
 
-export default function ProductsIndex({ products, filters }: Props) {
+export default function ProductsIndex({ products, filters, categories }: Props) {
   const [search, setSearch] = useState(filters.search || '');
+  const [categoryId, setCategoryId] = useState(filters.category_id?.toString() || 'all');
+  const [loading, setLoading] = useState(true);
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    router.get('/products', { search }, { preserveState: true });
-  };
+  useEffect(() => {
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    setLoading(true);
+    const timer = setTimeout(() => {
+      const params: any = { search };
+      if (categoryId !== 'all') {
+        params.category_id = categoryId;
+      }
+      router.get('/products', params, { 
+        preserveState: true, 
+        preserveScroll: true,
+        onFinish: () => setLoading(false)
+      });
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [search, categoryId]);
 
   const handleDelete = (id: number) => {
     if (confirm('Tem certeza que deseja excluir este produto?')) {
@@ -59,15 +84,15 @@ export default function ProductsIndex({ products, filters }: Props) {
     <AppLayout>
       <Head title="Produtos" />
       
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      <div className="min-h-screen bg-background">
         <div className="max-w-7xl mx-auto p-6 space-y-6">
           {/* Header */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
+              <h1 className="text-4xl font-bold text-foreground">
                 Produtos
               </h1>
-              <p className="text-gray-600 mt-1">Gerencie seu catálogo de produtos</p>
+              <p className="text-muted-foreground mt-1">Gerencie seu catálogo de produtos</p>
             </div>
             <Link href="/products/create">
               <Button className="cursor-pointer shadow-lg hover:shadow-xl transition-shadow">
@@ -80,7 +105,7 @@ export default function ProductsIndex({ products, filters }: Props) {
           {/* Search Bar */}
           <Card className="border-0 shadow-md">
             <CardContent className="p-6">
-              <form onSubmit={handleSearch} className="flex gap-3">
+              <div className="flex gap-3">
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                   <Input
@@ -90,16 +115,46 @@ export default function ProductsIndex({ products, filters }: Props) {
                     className="pl-10 h-11"
                   />
                 </div>
-                <Button type="submit" className="h-11 px-6">Buscar</Button>
-              </form>
+                <Select value={categoryId} onValueChange={setCategoryId}>
+                  <SelectTrigger className="w-[220px] h-11">
+                    <SelectValue placeholder="Categoria" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todas as categorias</SelectItem>
+                    {categories.map((category) => (
+                      <SelectItem key={category.id} value={category.id.toString()}>
+                        {category.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </CardContent>
           </Card>
 
           {/* Products Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {products.data.map((product) => (
+            {loading ? (
+              Array.from({ length: 8 }).map((_, i) => (
+                <Card key={i} className="border-0 shadow-md overflow-hidden">
+                  <Skeleton className="h-48 w-full" />
+                  <CardContent className="p-4 space-y-3">
+                    <Skeleton className="h-6 w-3/4" />
+                    <Skeleton className="h-4 w-1/2" />
+                    <Skeleton className="h-10 w-full" />
+                    <Skeleton className="h-8 w-full" />
+                    <div className="flex gap-2 pt-2">
+                      <Skeleton className="h-9 flex-1" />
+                      <Skeleton className="h-9 flex-1" />
+                      <Skeleton className="h-9 w-12" />
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              products.data.map((product) => (
               <Card key={product.id} className="group hover:shadow-xl transition-all duration-300 border-0 shadow-md overflow-hidden">
-                <div className="relative h-48 bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden">
+                <div className="relative h-48 bg-muted overflow-hidden">
                   {product.image ? (
                     <img 
                       src={product.image} 
@@ -108,7 +163,7 @@ export default function ProductsIndex({ products, filters }: Props) {
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
-                      <Package className="h-16 w-16 text-gray-300" />
+                      <Package className="h-16 w-16 text-muted-foreground" />
                     </div>
                   )}
                   <div className="absolute top-3 right-3 flex gap-2">
@@ -129,21 +184,21 @@ export default function ProductsIndex({ products, filters }: Props) {
                   </div>
                   
                   {product.description && (
-                    <p className="text-sm text-gray-600 line-clamp-2 min-h-[40px]">
+                    <p className="text-sm text-muted-foreground line-clamp-2 min-h-[40px]">
                       {product.description}
                     </p>
                   )}
                   
                   <div className="flex justify-between items-center pt-2 border-t">
                     <div>
-                      <p className="text-xs text-gray-500">Preço</p>
-                      <p className="text-xl font-bold text-green-600">
+                      <p className="text-xs text-muted-foreground">Preço</p>
+                      <p className="text-xl font-bold text-green-600 dark:text-green-400">
                         R$ {product.price.toFixed(2)}
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="text-xs text-gray-500">Estoque</p>
-                      <p className="text-lg font-semibold text-gray-700">
+                      <p className="text-xs text-muted-foreground">Estoque</p>
+                      <p className="text-lg font-semibold text-foreground">
                         {product.quantity}
                       </p>
                     </div>
@@ -188,16 +243,17 @@ export default function ProductsIndex({ products, filters }: Props) {
                   </div>
                 </CardContent>
               </Card>
-            ))}
+              ))
+            )}
           </div>
 
           {/* Empty State */}
           {products.data.length === 0 && (
             <Card className="border-0 shadow-md">
               <CardContent className="p-12 text-center">
-                <Package className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-gray-700 mb-2">Nenhum produto encontrado</h3>
-                <p className="text-gray-500 mb-6">Comece criando seu primeiro produto</p>
+                <Package className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-foreground mb-2">Nenhum produto encontrado</h3>
+                <p className="text-muted-foreground mb-6">Comece criando seu primeiro produto</p>
                 <Link href="/products/create">
                   <Button className="cursor-pointer">
                     <Plus className="h-4 w-4 mr-2" />

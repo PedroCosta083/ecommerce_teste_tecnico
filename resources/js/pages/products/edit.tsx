@@ -1,12 +1,15 @@
 import { Head, Link, useForm } from '@inertiajs/react';
+import { useState } from 'react';
 import AppLayout from '@/layouts/app-layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { CurrencyInput } from '@/components/ui/currency-input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
+import { Badge } from '@/components/ui/badge';
+import { X } from 'lucide-react';
 
 interface Category {
   id: number;
@@ -76,6 +79,8 @@ export default function ProductsEdit({ product, categories, tags }: Props) {
     _method: 'PUT',
   });
 
+  const [selectedTagId, setSelectedTagId] = useState<string>('');
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     post(`/products/${product.id}`, {
@@ -104,11 +109,16 @@ export default function ProductsEdit({ product, categories, tags }: Props) {
     });
   };
 
-  const handleTagToggle = (tagId: number) => {
-    const newTagIds = data.tag_ids.includes(tagId)
-      ? data.tag_ids.filter(id => id !== tagId)
-      : [...data.tag_ids, tagId];
-    setData('tag_ids', newTagIds);
+  const handleTagAdd = (tagId: string) => {
+    const id = parseInt(tagId);
+    if (!data.tag_ids.includes(id)) {
+      setData('tag_ids', [...data.tag_ids, id]);
+    }
+    setSelectedTagId('');
+  };
+
+  const handleTagRemove = (tagId: number) => {
+    setData('tag_ids', data.tag_ids.filter(id => id !== tagId));
   };
 
   return (
@@ -247,27 +257,39 @@ export default function ProductsEdit({ product, categories, tags }: Props) {
 
               <div>
                 <Label>Tags</Label>
-                <div className="grid grid-cols-3 gap-2 mt-2">
-                  {tags.map((tag) => (
-                    <div key={tag.id} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={`tag-${tag.id}`}
-                        checked={data.tag_ids.includes(tag.id)}
-                        onCheckedChange={() => handleTagToggle(tag.id)}
-                      />
-                      <Label htmlFor={`tag-${tag.id}`} className="text-sm">
+                <Select value={selectedTagId} onValueChange={handleTagAdd}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione tags" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {tags.filter(tag => !data.tag_ids.includes(tag.id)).map((tag) => (
+                      <SelectItem key={tag.id} value={tag.id.toString()}>
                         {tag.name}
-                      </Label>
-                    </div>
-                  ))}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {data.tag_ids.map((tagId) => {
+                    const tag = tags.find(t => t.id === tagId);
+                    return tag ? (
+                      <Badge key={tag.id} variant="secondary" className="gap-1">
+                        {tag.name}
+                        <X 
+                          className="h-3 w-3 cursor-pointer hover:text-destructive" 
+                          onClick={() => handleTagRemove(tag.id)}
+                        />
+                      </Badge>
+                    ) : null;
+                  })}
                 </div>
               </div>
 
               <div className="flex items-center space-x-2">
-                <Checkbox
+                <Switch
                   id="active"
                   checked={data.active}
-                  onCheckedChange={(checked) => setData('active', !!checked)}
+                  onCheckedChange={(checked) => setData('active', checked)}
                 />
                 <Label htmlFor="active">Produto ativo</Label>
               </div>
