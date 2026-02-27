@@ -98,9 +98,9 @@ class CheckoutController extends Controller
                 'quantity' => $item->quantity,
                 'subtotal' => $item->product->price * $item->quantity,
                 'cart_item_id' => $item->id, // Para remover depois
-            ]);
+            ])->values()->toArray();
 
-            $subtotal = $items->sum('subtotal');
+            $subtotal = $cartItems->sum(fn($item) => $item->product->price * $item->quantity);
         }
 
         $tax = $subtotal * 0.1;
