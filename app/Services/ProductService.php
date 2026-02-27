@@ -34,9 +34,19 @@ class ProductService
         return $this->productRepository->findBySlug($slug);
     }
 
+    public function getLowStockProducts(): Collection
+    {
+        return Product::lowStock()->get();
+    }
+
+    public function getInStockProducts(): Collection
+    {
+        return Product::inStock()->get();
+    }
+
     public function getActiveProducts(): Collection
     {
-        return $this->productRepository->findActive();
+        return Product::active()->get();
     }
 
     public function getProductsByCategory(int $categoryId): Collection

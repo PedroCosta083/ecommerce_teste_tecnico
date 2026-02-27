@@ -36,7 +36,17 @@ class OrderService
 
     public function getOrdersByUser(int $userId): Collection
     {
-        return $this->orderRepository->findByUser($userId);
+        return Order::byUser($userId)->recent()->get();
+    }
+
+    public function getPendingOrders(): Collection
+    {
+        return Order::pending()->recent()->get();
+    }
+
+    public function getOrdersByStatus(string $status): Collection
+    {
+        return Order::byStatus($status)->recent()->get();
     }
 
     public function getOrdersWithFilters(OrderFilterDTO $filters): LengthAwarePaginator

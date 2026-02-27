@@ -31,12 +31,17 @@ class CategoryService
 
     public function getActiveCategories(): Collection
     {
-        return $this->categoryRepository->findActive();
+        return Category::active()->get();
     }
 
     public function getRootCategories(): Collection
     {
-        return $this->categoryRepository->findRootCategories();
+        return Category::root()->get();
+    }
+
+    public function getActiveRootCategories(): Collection
+    {
+        return Category::active()->root()->get();
     }
 
     public function getCategoryProducts(int $categoryId)
