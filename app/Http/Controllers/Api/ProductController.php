@@ -15,7 +15,9 @@ class ProductController extends ApiController
 
     public function __construct(
         private ProductService $productService
-    ) {}
+    ) {
+        $this->middleware('auth:sanctum')->except(['index', 'show']);
+    }
 
     /**
      * @OA\Get(
@@ -177,6 +179,8 @@ class ProductController extends ApiController
      */
     public function store(CreateProductRequest $request): JsonResponse
     {
+        $this->authorize('create', \App\Models\Product::class);
+        
         $dto = CreateProductDTO::fromRequest($request->validated());
         $product = $this->productService->createProduct($dto);
         return $this->storeResource($product, ProductResource::class, 'Product created successfully');
@@ -228,6 +232,13 @@ class ProductController extends ApiController
      */
     public function update(UpdateProductRequest $request, int $id): JsonResponse
     {
+        $product = $this->productService->getProductById($id);
+        if (!$product) {
+            return $this->error('Product not found', 404);
+        }
+        
+        $this->authorize('update', $product);
+        
         $dto = UpdateProductDTO::fromRequest($request->validated());
         $product = $this->productService->updateProduct($id, $dto);
         return $this->updateResource($product, ProductResource::class, 'Product updated successfully', 'Product not found');
@@ -262,6 +273,13 @@ class ProductController extends ApiController
      */
     public function destroy(int $id): JsonResponse
     {
+        $product = $this->productService->getProductById($id);
+        if (!$product) {
+            return $this->error('Product not found', 404);
+        }
+        
+        $this->authorize('delete', $product);
+        
         $deleted = $this->productService->deleteProduct($id);
         return $this->destroyResource($deleted, 'Product deleted successfully', 'Product not found');
     }

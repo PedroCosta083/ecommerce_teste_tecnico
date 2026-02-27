@@ -10,9 +10,7 @@ class DashboardController extends Controller
 {
     public function __construct(
         private DashboardService $dashboardService
-    ) {
-        $this->middleware('can:products.view');
-    }
+    ) {}
 
     /**
      * @OA\Get(
@@ -43,11 +41,13 @@ class DashboardController extends Controller
      *         )
      *     ),
      *     @OA\Response(response=401, description="Não autenticado"),
-     *     @OA\Response(response=403, description="Não autorizado - Permissão necessária: products.view")
+     *     @OA\Response(response=403, description="Não autorizado")
      * )
      */
     public function metrics(): JsonResponse
     {
+        $this->authorize('viewMetrics', \App\Models\User::class);
+        
         $metrics = $this->dashboardService->getMetrics();
         return response()->json(['success' => true, 'data' => $metrics]);
     }
