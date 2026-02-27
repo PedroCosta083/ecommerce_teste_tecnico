@@ -234,7 +234,7 @@ export default function ProductsIndex({ products, filters, categories }: Props) 
                       variant="outline" 
                       size="sm"
                       onClick={() => handleDelete(product.id)}
-                      className="flex-1 cursor-pointer hover:bg-red-50 dark:hover:bg-red-950 hover:text-red-600 dark:hover:text-red-400 hover:border-red-300 dark:hover:border-red-800"
+                      className="flex-1 cursor-pointer text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950 hover:border-red-300 dark:hover:border-red-800"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
