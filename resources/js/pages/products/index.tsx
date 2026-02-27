@@ -221,24 +221,22 @@ export default function ProductsIndex({ products, filters, categories }: Props) 
                   
                   <div className="flex gap-2 pt-2">
                     <Link href={`/products/${product.id}`} className="flex-1">
-                      <Button variant="outline" size="sm" className="w-full cursor-pointer">
-                        <Eye className="h-3.5 w-3.5 mr-1" />
-                        Ver
+                      <Button variant="outline" size="sm" className="w-full cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-950">
+                        <Eye className="h-4 w-4" />
                       </Button>
                     </Link>
                     <Link href={`/products/${product.id}/edit`} className="flex-1">
-                      <Button variant="outline" size="sm" className="w-full cursor-pointer">
-                        <Edit className="h-3.5 w-3.5 mr-1" />
-                        Editar
+                      <Button variant="outline" size="sm" className="w-full cursor-pointer hover:bg-amber-50 dark:hover:bg-amber-950">
+                        <Edit className="h-4 w-4" />
                       </Button>
                     </Link>
                     <Button 
-                      variant="destructive" 
+                      variant="outline" 
                       size="sm"
                       onClick={() => handleDelete(product.id)}
-                      className="px-3 cursor-pointer"
+                      className="flex-1 cursor-pointer hover:bg-red-50 dark:hover:bg-red-950 hover:text-red-600 dark:hover:text-red-400 hover:border-red-300 dark:hover:border-red-800"
                     >
-                      <Trash2 className="h-3.5 w-3.5" />
+                      <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
                 </CardContent>
