@@ -232,6 +232,87 @@ export default function CheckoutIndex({ items, subtotal, tax, shipping, total, d
                 </CardContent>
               </Card>
 
+              {!sameAddress && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <MapPin className="h-5 w-5" />
+                      Endereço de Cobrança
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-4 gap-4">
+                      <div className="col-span-3">
+                        <Label>Rua</Label>
+                        <Input
+                          value={data.billing_address.street}
+                          onChange={(e) => setData('billing_address', { ...data.billing_address, street: e.target.value })}
+                          required
+                        />
+                      </div>
+                      <div>
+                        <Label>Número</Label>
+                        <Input
+                          value={data.billing_address.number}
+                          onChange={(e) => setData('billing_address', { ...data.billing_address, number: e.target.value })}
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label>Complemento</Label>
+                      <Input
+                        value={data.billing_address.complement}
+                        onChange={(e) => setData('billing_address', { ...data.billing_address, complement: e.target.value })}
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label>CEP</Label>
+                        <MaskedInput
+                          mask="99999-999"
+                          value={data.billing_address.zip_code}
+                          onChange={(e) => setData('billing_address', { ...data.billing_address, zip_code: e.target.value })}
+                          placeholder="00000-000"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <Label>Bairro</Label>
+                        <Input
+                          value={data.billing_address.neighborhood}
+                          onChange={(e) => setData('billing_address', { ...data.billing_address, neighborhood: e.target.value })}
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label>Cidade</Label>
+                        <Input
+                          value={data.billing_address.city}
+                          onChange={(e) => setData('billing_address', { ...data.billing_address, city: e.target.value })}
+                          required
+                        />
+                      </div>
+                      <div>
+                        <Label>Estado</Label>
+                        <Input
+                          value={data.billing_address.state}
+                          onChange={(e) => setData('billing_address', { ...data.billing_address, state: e.target.value.toUpperCase() })}
+                          maxLength={2}
+                          placeholder="SP"
+                          required
+                        />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
               <Card>
                 <CardHeader>
                   <CardTitle>Observações</CardTitle>
