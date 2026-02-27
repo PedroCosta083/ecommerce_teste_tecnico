@@ -71,7 +71,14 @@ class CheckoutController extends Controller
         } else {
             $cart = $this->cartService->getCartByUser(auth()->id());
             
-            if (!$cart || $cart->cartItems->isEmpty()) {
+            if (!$cart) {
+                return Inertia::redirect('/')->with('error', 'Carrinho vazio');
+            }
+
+            // Carregar relacionamento items
+            $cart->load('items.product');
+            
+            if ($cart->items->isEmpty()) {
                 return Inertia::redirect('/')->with('error', 'Carrinho vazio');
             }
 
@@ -79,8 +86,8 @@ class CheckoutController extends Controller
             $selectedItemIds = $selectedIds ? explode(',', $selectedIds) : [];
             
             $cartItems = !empty($selectedItemIds)
-                ? $cart->cartItems->whereIn('id', $selectedItemIds)
-                : $cart->cartItems;
+                ? $cart->items->whereIn('id', $selectedItemIds)
+                : $cart->items;
 
             if ($cartItems->isEmpty()) {
                 return Inertia::redirect('/')->with('error', 'Nenhum item selecionado');
