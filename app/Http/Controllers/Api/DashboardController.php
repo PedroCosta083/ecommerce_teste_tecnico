@@ -46,7 +46,9 @@ class DashboardController extends Controller
      */
     public function metrics(): JsonResponse
     {
-        $this->authorize('viewMetrics', \App\Models\User::class);
+        if (!auth()->user()->can('products.view')) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
         
         $metrics = $this->dashboardService->getMetrics();
         return response()->json(['success' => true, 'data' => $metrics]);
